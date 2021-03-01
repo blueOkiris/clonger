@@ -5,4 +5,11 @@
     <TargetFramework>net5.0</TargetFramework>
   </PropertyGroup>
 
+  <ItemGroup>
+    <PackageReference Include="Qml.Net" Version="0.11.0" />
+    <PackageReference Include="Qml.Net.LinuxBinaries" Version="0.11.0" />
+    <PackageReference Include="Qml.Net.OSXBinaries" Version="0.11.0" />
+    <PackageReference Include="Qml.Net.WindowsBinaries" Version="0.11.0" />
+  </ItemGroup>
+
 </Project>

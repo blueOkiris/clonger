@@ -14,3 +14,6 @@ Essentially, there's
  - an area that allows you to provide examples of your language
  - an area that acts as a dictionary
 
+## Building
+
+NOTE: Linux users need to first install `libc6-dev`
