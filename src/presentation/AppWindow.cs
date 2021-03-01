@@ -12,14 +12,14 @@
 
 using System;
 using Gtk;
-using Gdk;
 using Clonger.Data;
 
-namespace Clonger.Presentation {
-    class AppWindow : Gtk.Window {
+namespace Clonger.Presentation {    
+    class AppWindow : Window {
         public static readonly AppWindow Instance = new AppWindow();
         
         private AppWindow() : base(AppSettings.WindowTitle) {
+            // Set up window properties
             SetSizeRequest(
                 AppSettings.MinWindowSize.Item1,
                 AppSettings.MinWindowSize.Item2
@@ -31,6 +31,49 @@ namespace Clonger.Presentation {
             DeleteEvent += (object sender, DeleteEventArgs args) => {
                 Application.Quit();
             };
+            
+            // Build application
+            var mainContainer = new VBox(false, (int) AppSettings.Margin);
+            
+            var viewSwitchBar = new HBox(false, (int) AppSettings.Margin);
+            var ipaButton = new Button("IPA Keyboard");
+            ipaButton.Clicked += (object sender, EventArgs args) => {
+                switchViews(ViewType.IpaKeyboard);
+            };
+            viewSwitchBar.PackStart(
+                ipaButton, false, false, AppSettings.Margin
+            );
+            var docButton = new Button("Document");
+            docButton.Clicked += (object sender, EventArgs args) => {
+                switchViews(ViewType.Document);
+            };
+            viewSwitchBar.PackStart(
+                docButton, false, false, AppSettings.Margin
+            );
+            var dictButton = new Button("Dictionary");
+            dictButton.Clicked += (object sender, EventArgs args) => {
+                switchViews(ViewType.Dictionary);
+            };
+            viewSwitchBar.PackStart(
+                dictButton, false, false, AppSettings.Margin
+            );
+            var exButton = new Button("Examples");
+            exButton.Clicked += (object sender, EventArgs args) => {
+                switchViews(ViewType.Examples);
+            };
+            viewSwitchBar.PackStart(
+                exButton, false, false, AppSettings.Margin
+            );
+            mainContainer.PackStart(
+                viewSwitchBar, false, false, AppSettings.Margin
+            );
+            
+            Add(mainContainer);
+            switchViews(ViewType.IpaKeyboard);
+        }
+        
+        private void switchViews(ViewType view) {
+            
         }
     }
 }
