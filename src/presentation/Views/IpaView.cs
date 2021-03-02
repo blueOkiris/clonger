@@ -57,7 +57,9 @@ namespace Clonger.Presentation.Views {
                 var hotKey = HotKey.HotKeys[i];
                 var hotKeyContainer = new HBox(false, (int) AppSettings.Margin);
                 var hotKeyLabelFrame = new Frame();
-                hotKeyLabelFrame.Add(new Label(hotKeyStr(hotKey)));
+                hotKeyLabelFrame.Add(
+                    new Label(IpaTextManager.hotKeyStr(hotKey))
+                );
                 hotKeyContainer.PackStart(
                     hotKeyLabelFrame, false, false, AppSettings.Margin
                 );
@@ -86,41 +88,6 @@ namespace Clonger.Presentation.Views {
             hotKeyScroll.Add(hotKeyBoxContainer);
             hotKeyView.Add(hotKeyScroll);
             PackStart(hotKeyView, false, false, AppSettings.Margin);
-        }
-        
-        private static string hotKeyStr(HotKey hotKey) {
-            switch(hotKey.key) {
-                default:
-                    return hotKey.key.ToString();
-                case Gdk.Key.grave:
-                    return "`";
-                case Gdk.Key.backslash:
-                    return "\\";
-                case Gdk.Key.period:
-                    return ".";
-                case Gdk.Key.colon:
-                    return ":";
-                case Gdk.Key.Key_0:
-                    return "0";
-                case Gdk.Key.Key_1:
-                    return "1";
-                case Gdk.Key.Key_2:
-                    return "2";
-                case Gdk.Key.Key_3:
-                    return "3";
-                case Gdk.Key.Key_4:
-                    return "4";
-                case Gdk.Key.Key_5:
-                    return "5";
-                case Gdk.Key.Key_6:
-                    return "6";
-                case Gdk.Key.Key_7:
-                    return "7";
-                case Gdk.Key.Key_8:
-                    return "8";
-                case Gdk.Key.Key_9:
-                    return "9";
-            }
         }
     }
 }
