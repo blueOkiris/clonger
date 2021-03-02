@@ -99,7 +99,7 @@ namespace Clonger.Data {
                 symbols = new string[] { "ǀ", "ǁ", "ǂ", "ǃ", "ʘ" }
             }, new HotKey {
                 key = Key.colon,
-                symbols = new string[] { "ː" }
+                symbols = new string[] { ";" }
             }, new HotKey {
                 key = Key.period,
                 symbols = new string[] { "˩", "˨", "˧", "˦", "˥" }
