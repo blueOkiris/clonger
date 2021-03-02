@@ -14,85 +14,85 @@ namespace Clonger.Data {
         
         public static HotKey[] HotKeys = {
             new HotKey {
-                key = Key.A,
+                key = Key.a,
                 symbols = new string[] { "ɑ", "æ", "ɐ", "ɑ̃" }
             }, new HotKey {
-                key = Key.B,
+                key = Key.b,
                 symbols = new string[] { "β", "ɓ", "ʙ" }
             }, new HotKey {
-                key = Key.C,
+                key = Key.c,
                 symbols = new string[] { "ç", "ɕ" }
             }, new HotKey {
-                key = Key.D,
+                key = Key.d,
                 symbols = new string[] { "ð", "d͡ʒ", "ɖ", "ɗ" }
             }, new HotKey {
-                key = Key.E,
+                key = Key.e,
                 symbols = new string[] { "ə", "ɚ", "ɵ", "ɘ" }
             }, new HotKey {
                 key = Key.Key_3,
                 symbols = new string[] { "ɛ", "ɜ", "ɝ", "ɛ̃", "ɞ" }
             }, new HotKey {
-                key = Key.G,
+                key = Key.g,
                 symbols = new string[] { "ɠ", "ɢ", "ʛ" }
             }, new HotKey {
-                key = Key.H,
+                key = Key.h,
                 symbols = new string[] { "ħ", "ɦ","ɥ", "ɧ", "ʜ" }
             }, new HotKey {
-                key = Key.I,
+                key = Key.i,
                 symbols = new string[] { "ɪ", "ɨ", "ɪ̈" }
             }, new HotKey {
-                key = Key.J,
+                key = Key.j,
                 symbols = new string[] { "ʝ", "ɟ", "ʄ" }
             }, new HotKey {
-                key = Key.L,
+                key = Key.l,
                 symbols = new string[] { "ɫ", "ɭ", "ɬ", "ʟ", "ɮ" }
             }, new HotKey {
-                key = Key.M,
+                key = Key.m,
                 symbols = new string[] { "ɱ" }
             }, new HotKey {
-                key = Key.N,
+                key = Key.n,
                 symbols = new string[] { "ŋ", "ɲ", "ɳ", "ɴ" }
             }, new HotKey {
-                key = Key.O,
+                key = Key.o,
                 symbols = new string[] { "ɔ","œ", "ɒ", "ɔ̃", "ɶ" }
             }, new HotKey {
                 key = Key.Key_0,
                 symbols = new string[] { "ø" }
             }, new HotKey {
-                key = Key.P,
+                key = Key.p,
                 symbols = new string[] { "ɸ" }
             }, new HotKey {
-                key = Key.R,
+                key = Key.r,
                 symbols = new string[] { "ɾ", "ɹ", "ʁ", "ʀ", "ɻ", "ɽ", "ɺ" }
             }, new HotKey {
-                key = Key.S,
+                key = Key.s,
                 symbols = new string[] { "ʃ", "ʂ" }
             }, new HotKey {
-                key = Key.T,
+                key = Key.t,
                 symbols = new string[] { "θ", "t͡ʃ", "t͡s", "ʈ" }
             }, new HotKey {
-                key = Key.U,
+                key = Key.u,
                 symbols = new string[] { "ʊ", "ʉ" }
             }, new HotKey {
-                key = Key.V,
+                key = Key.v,
                 symbols = new string[] { "ʌ", "ʋ", "ⱱ" }
             }, new HotKey {
-                key = Key.W,
+                key = Key.w,
                 symbols = new string[] { "ɯ", "ʍ", "ɰ" }
             }, new HotKey {
-                key = Key.X,
+                key = Key.x,
                 symbols = new string[] { "χ" }
             }, new HotKey {
-                key = Key.Y,
+                key = Key.y,
                 symbols = new string[] { "ɣ", "ʎ", "ʏ", "ɤ" }
             }, new HotKey {
-                key = Key.Z,
+                key = Key.z,
                 symbols = new string[] { "ʒ", "ʐ", "ʑ" }
             }, new HotKey {
                 key = Key.Key_2,
                 symbols = new string[] { "ʔ", "ʕ", "ʡ", "ʢ" }
             }, new HotKey {
-                key = Key.Q,
+                key = Key.q,
                 symbols = new string[] { "ˈ", "ˌ" }
             }, new HotKey {
                 key = Key.backslash,
