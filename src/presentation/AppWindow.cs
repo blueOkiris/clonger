@@ -18,6 +18,8 @@ namespace Clonger.Presentation {
     class AppWindow : Window {
         public static readonly AppWindow Instance = new AppWindow();
         
+        private Frame viewContainer;
+        
         private AppWindow() : base(AppSettings.WindowTitle) {
             // Set up window properties
             SetSizeRequest(
@@ -36,7 +38,7 @@ namespace Clonger.Presentation {
             var mainContainer = new VBox(false, (int) AppSettings.Margin);
             
             var viewSwitchBar = new HBox(false, (int) AppSettings.Margin);
-            var ipaButton = new Button("IPA Keyboard");
+            var ipaButton = new Button("IPA");
             ipaButton.Clicked += (object sender, EventArgs args) => {
                 switchViews(ViewType.IpaKeyboard);
             };
@@ -64,16 +66,39 @@ namespace Clonger.Presentation {
             viewSwitchBar.PackStart(
                 exButton, false, false, AppSettings.Margin
             );
+            viewSwitchBar.BorderWidth = AppSettings.BorderWidth;
             mainContainer.PackStart(
                 viewSwitchBar, false, false, AppSettings.Margin
             );
+            
+            viewContainer = new Frame("IPA Typing Tool");
+            mainContainer.PackStart(
+                viewContainer, true, true, AppSettings.Margin
+            );
+            viewContainer.BorderWidth = AppSettings.BorderWidth;
             
             Add(mainContainer);
             switchViews(ViewType.IpaKeyboard);
         }
         
         private void switchViews(ViewType view) {
-            
+            switch(view) {
+                case ViewType.IpaKeyboard:
+                    viewContainer.Label = "IPA Typing Tool";
+                    break;
+                
+                case ViewType.Document:
+                    viewContainer.Label = "Language Documentation Manager";
+                    break;
+                
+                case ViewType.Dictionary:
+                    viewContainer.Label = "Dictionary Storage System";
+                    break;
+                
+                case ViewType.Examples:
+                    viewContainer.Label = "List of Examples";
+                    break;
+            }
         }
     }
 }

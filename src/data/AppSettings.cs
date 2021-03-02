@@ -4,5 +4,6 @@ namespace Clonger.Data {
         public static readonly (int, int) MinWindowSize = (400, 400);
         public static readonly string WindowTitle = "Clonger";
         public static readonly uint Margin = 10;
+        public static readonly uint BorderWidth = 5;
     }
 }
