@@ -6,6 +6,17 @@ using Clonger.Data;
 namespace Clonger.Presentation.Views {
     class IpaKeyboardView : VBox {
         public IpaKeyboardView() : base(false, (int) AppSettings.Margin) {
+            createHotKeyTable();
+            addTextField();
+        }
+        
+        private void addTextField() {
+            var textFieldScroll = new ScrolledWindow();
+            textFieldScroll.Add(new TextView());
+            PackStart(textFieldScroll, true, true, AppSettings.Margin);
+        }
+        
+        private void createHotKeyTable() {
             var hotKeyView = new Frame("Hotkeys (Alt + key multiple times)");
             
             var hotKeyScroll = new ScrolledWindow();
