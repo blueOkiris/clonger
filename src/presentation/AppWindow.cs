@@ -141,6 +141,8 @@ namespace Clonger.Presentation {
                     viewContainer.Add(exView);
                     break;
             }
+            
+            ShowAll();
         }
     }
 }
