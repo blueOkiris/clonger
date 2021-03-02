@@ -3,92 +3,33 @@ using System.Text;
 using System.Linq;
 using Gtk;
 using Clonger.Data;
+using Clonger.Domain;
 
 namespace Clonger.Presentation.Views {
     class IpaKeyboardView : VBox {
-        private bool isAltHeld, altReset;
-        private Gdk.Key lastKey;
-        private int altKeyIndex;
-        private TextView input;
+        private IpaTextManager textManager;
         
         public IpaKeyboardView() : base(false, (int) AppSettings.Margin) {
-            isAltHeld = false;
-            altKeyIndex = 0;
-            lastKey = Gdk.Key.a;
-            altReset = true;
+            textManager = new IpaTextManager();
             
             createHotKeyTable();
             addTextField();
         }
         
-        // Intercept keys to do alt key replacements
-        private void onKeyPress(object sender, KeyPressEventArgs args) {
-            /*Console.WriteLine(
-                "Key pressed: {0}, Alt: {1}", args.Event.Key, isAltHeld
-            );*/
-            if(args.Event.Key == Gdk.Key.Alt_L) {
-                isAltHeld = true;
-                altReset = true;
-            } else if(isAltHeld) {
-                // Reset on key change
-                if(altReset || args.Event.Key != lastKey) {
-                    lastKey = args.Event.Key;
-                    altKeyIndex = 0;
-                    altReset = false;
-                } else if(args.Event.Key == lastKey) {
-                    var hotKeys = HotKey.HotKeys.Where(
-                        (HotKey hotKey) => hotKey.key == args.Event.Key
-                    ).ToArray();
-                    if(hotKeys.Length > 0) {
-                        var oldText = input.Buffer.Text;
-                        if(altKeyIndex == 0) {
-                            var lastSymbLen = hotKeys[0].symbols[
-                                hotKeys[0].symbols.Length - 1
-                            ].Length;
-                            input.Buffer.Text = input.Buffer.Text.Remove(
-                                oldText.Length - lastSymbLen, lastSymbLen
-                            );
-                        } else {
-                            var lastSymbLen = hotKeys[0].symbols[
-                                altKeyIndex - 1
-                            ].Length;
-                            input.Buffer.Text = input.Buffer.Text.Remove(
-                                oldText.Length - lastSymbLen, lastSymbLen
-                            );
-                        }
-                    }
-                }
-                
-                foreach(var hotKey in HotKey.HotKeys) {
-                    if(args.Event.Key == hotKey.key) {
-                        input.Buffer.Text += hotKey.symbols[altKeyIndex++];
-                        if(altKeyIndex >= hotKey.symbols.Length) {
-                            altKeyIndex = 0;
-                        }
-                        break;
-                    }
-                }
-            }
-        }
-        
-        // Reset alt-key
-        private void onKeyRelease(object sender, KeyReleaseEventArgs args) {
-            /*Console.WriteLine(
-                "Key released: {0}, {1}", args.Event.Key, isAltHeld
-            );*/
-            if(args.Event.Key == Gdk.Key.Alt_L) {
-                isAltHeld = false;
-                altReset = true;
-                altKeyIndex = 0;
-            }
-        }
-        
         private void addTextField() {
             var textFieldScroll = new ScrolledWindow();
-            input = new TextView();
-            input.KeyPressEvent += onKeyPress;
-            input.KeyReleaseEvent += onKeyRelease;
-            textFieldScroll.Add(input);
+            var textView = new TextView();
+            textView.KeyPressEvent +=
+                (object sender, KeyPressEventArgs args) => {
+                    textManager.Input = (sender as TextView).Buffer.Text;
+                    textManager.OnKeyPress(args.Event.Key);
+                    (sender as TextView).Buffer.Text = textManager.Input;
+                };
+            textView.KeyReleaseEvent += 
+                (object sender, KeyReleaseEventArgs args) => {
+                    textManager.OnKeyRelease(args.Event.Key);
+                };
+            textFieldScroll.Add(textView);
             PackStart(textFieldScroll, true, true, AppSettings.Margin);
         }
         
