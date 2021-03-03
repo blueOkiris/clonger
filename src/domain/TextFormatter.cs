@@ -54,6 +54,9 @@ namespace Clonger.Domain {
                         break;
                 }
             }
+            if(currStr.Length > 0) {
+                sections.Add(currStr.ToString());
+            }
             
             // Parse the sections
             foreach(var section in sections) {
@@ -64,7 +67,7 @@ namespace Clonger.Domain {
         }
         
         private static DocumentSnippet parseSnippet(string section) {
-            if(!section.StartsWith("[")) {
+            if(!section.StartsWith("[") || !section.EndsWith("]")) {
                 return new TextSnippet {
                     IsBold = false, IsItalicized = false, IsUnderlined = false,
                     Style = HeaderType.Body,
@@ -111,7 +114,8 @@ namespace Clonger.Domain {
                     int numCols = -1;
                     if(!int.TryParse(formatting[1], out numRows)) {
                         Console.WriteLine(
-                            "Invalid row count in table definition!"
+                            "Invalid row count in table definition! {0}",
+                            formatting[1]
                         );
                         return new TextSnippet {
                             IsBold = false,
@@ -123,7 +127,8 @@ namespace Clonger.Domain {
                     }
                     if(!int.TryParse(formatting[2], out numCols)) {
                         Console.WriteLine(
-                            "Invalid column count in table definition!"
+                            "Invalid column count in table definition! {0}",
+                            formatting[2]
                         );
                         return new TextSnippet {
                             IsBold = false,
