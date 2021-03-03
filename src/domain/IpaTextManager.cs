@@ -1,3 +1,10 @@
+/*
+ * This handles the logic for key presses
+ * and keeping the text buffer properly updated,
+ * (i.e. the funtionality)
+ * for the IPA view
+ */
+
 using System.Linq;
 using Gdk;
 using Clonger.Data;

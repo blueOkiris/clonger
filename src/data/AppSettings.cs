@@ -1,3 +1,7 @@
+/*
+ * Global space for application constants
+ */
+
 namespace Clonger.Data {
     static class AppSettings {
         public static readonly (int, int) DefaultWindowSize = (1280, 720);

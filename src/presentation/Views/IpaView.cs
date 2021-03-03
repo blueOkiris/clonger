@@ -1,3 +1,13 @@
+/*
+ * This is the IPA typing tool
+ *
+ * It contains a box for inputting characters.
+ * You can either input plain characters
+ * or use the alt key like a T9 phone for special characters
+ *
+ * The hotkeys are shown above in a frame
+ */
+
 using System;
 using System.Text;
 using System.Linq;

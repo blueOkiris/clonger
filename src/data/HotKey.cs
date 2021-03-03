@@ -2,6 +2,9 @@
  * This is a data type that stores
  *  1) A hotkey used in the IPA view with alt
  *  2) A list of all the characters the hotkey provides
+ *
+ * It contains a static member that contains all the hotkeys laid out
+ * I could put those in settings, but I thought they fit better here
  */
 
 using System;
