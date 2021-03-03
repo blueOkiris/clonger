@@ -74,7 +74,7 @@ namespace Clonger.Presentation.Views {
         private void updateExampleList() {
             exampleList.Child.Dispose();
             
-            var list = new VBox(true, (int) AppSettings.Margin);
+            var list = new VBox(false, 0);
             foreach(var example in Examples) {
                 var view = new TextView();
                 view.Editable = false;
@@ -116,7 +116,14 @@ namespace Clonger.Presentation.Views {
                     ref buffIter, example.Translation, transTag
                 );
                 
-                list.PackStart(view, false, false, AppSettings.Margin);
+                list.PackStart(view, false, false, 0);
+                
+                var deleteButton = new Button("Delete");
+                deleteButton.Clicked += (object sender, EventArgs args) => {
+                    Examples.Remove(example);
+                    updateExampleList();
+                };
+                list.PackStart(deleteButton, false, false, 0);
             }
             
             exampleList.Add(list);

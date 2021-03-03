@@ -146,7 +146,8 @@ namespace Clonger.Presentation {
                 FileManager.Save(
                     fileChooser.Filename,
                     docView.GetText(),
-                    exView.Examples
+                    exView.Examples,
+                    dictView.Words
                 );
                 currentFile = fileChooser.Filename;
                 Title = AppSettings.WindowTitle + " - " + currentFile;
@@ -188,6 +189,7 @@ namespace Clonger.Presentation {
                 
                 docView.SetText(fileTuple.Item1);
                 exView.UpdateExamples(fileTuple.Item2.Item1);
+                
                 
                 currentFile = fileChooser.Filename;
                 Title = AppSettings.WindowTitle + " - " + currentFile;

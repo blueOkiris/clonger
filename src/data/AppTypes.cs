@@ -50,4 +50,11 @@ namespace Clonger.Data {
         public string Gloss;
         public string Translation;
     }
+    
+    // Dictionary entry for conlang's word
+    struct WordEntry {
+        public string Word;
+        public string Translation;
+        public string PartOfSpeech;
+    }
 }
