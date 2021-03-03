@@ -23,6 +23,9 @@ namespace Clonger.Presentation.Views {
             addInput();
         }
         
+        public string GetText() => inputView.Buffer.Text;
+        public void SetText(string text) => inputView.Buffer.Text = text;
+        
         private void addFormatView() {
             var formatFrame = new Frame("Format");
             formatScroll = new ScrolledWindow();

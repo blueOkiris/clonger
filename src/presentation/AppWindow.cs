@@ -25,6 +25,7 @@ namespace Clonger.Presentation {
         private DictionaryView dictView;
         private ExampleListView exView;
         private ViewType currView;
+        private string currentFile;
         
         private AppWindow() : base(AppSettings.WindowTitle) {
             // Set up window properties
@@ -39,9 +40,56 @@ namespace Clonger.Presentation {
             DeleteEvent += (object sender, DeleteEventArgs args) => {
                 Application.Quit();
             };
+            currentFile = "";
             
-            // Build application
+            buildGui();
+            
+            ipaView = new IpaKeyboardView();
+            docView = new LanguageDocumentationView();
+            dictView = new DictionaryView();
+            exView = new ExampleListView();
+            
+            currView = ViewType.IpaKeyboard;
+            viewContainer.Add(ipaView);
+        }
+        
+        private void buildGui() {
             var mainContainer = new VBox(false, (int) AppSettings.Margin);
+            
+            var menuOptionBar = new HBox(false, (int) AppSettings.Margin);
+            var newButton = new Button("New");
+            newButton.Clicked += (object sender, EventArgs args) => {
+                newFile();
+            };
+            menuOptionBar.PackStart(
+                newButton, false, false, AppSettings.Margin
+            );
+            var saveButton = new Button("Save");
+            saveButton.Clicked += (object sender, EventArgs args) => {
+                if(currentFile == "") {
+                    saveFile();
+                }
+            };
+            menuOptionBar.PackStart(
+                saveButton, false, false, AppSettings.Margin
+            );
+            var saveAsButton = new Button("Save As");
+            saveAsButton.Clicked += (object sender, EventArgs args) => {
+                saveFile();
+            };
+            menuOptionBar.PackStart(
+                saveAsButton, false, false, AppSettings.Margin
+            );
+            var openButton = new Button("Open");
+            openButton.Clicked += (object sender, EventArgs args) => {
+                openFile();
+            };
+            menuOptionBar.PackStart(
+                openButton, false, false, AppSettings.Margin
+            );
+            mainContainer.PackStart(
+                menuOptionBar, false, false, AppSettings.Margin
+            );
             
             var viewSwitchBar = new HBox(false, (int) AppSettings.Margin);
             var ipaButton = new Button("IPA");
@@ -84,14 +132,63 @@ namespace Clonger.Presentation {
             viewContainer.BorderWidth = AppSettings.BorderWidth;
             
             Add(mainContainer);
+        }
+        
+        private void saveFile() {
+            var fileChooser = new FileChooserDialog(
+                "Save File (*.clong)", this, FileChooserAction.Save,
+                "Cancel", ResponseType.Cancel,
+                "Save As", ResponseType.Accept
+            );
+            fileChooser.Filter = new FileFilter();
+            fileChooser.Filter.AddPattern("*.clong");
+            if(fileChooser.Run() == (int) ResponseType.Accept) {
+                FileManager.Save(
+                    fileChooser.Filename,
+                    docView.GetText()
+                );
+                currentFile = fileChooser.Filename;
+                Title = AppSettings.WindowTitle + " - " + currentFile;
+            }
+            fileChooser.Dispose();
+        }
+        
+        private void newFile() {
+            ipaView.Dispose();
+            docView.Dispose();
+            dictView.Dispose();
+            exView.Dispose();
             
             ipaView = new IpaKeyboardView();
             docView = new LanguageDocumentationView();
             dictView = new DictionaryView();
             exView = new ExampleListView();
             
+            currentFile = "";
+            Title = AppSettings.WindowTitle;
+            
             currView = ViewType.IpaKeyboard;
             viewContainer.Add(ipaView);
+            ShowAll();
+        }
+        
+        private void openFile() {
+            newFile();
+            
+            var fileChooser = new FileChooserDialog(
+                "Open File", this, FileChooserAction.Open,
+                "Cancel", ResponseType.Cancel,
+                "Open", ResponseType.Accept
+            );
+            fileChooser.Filter = new FileFilter();
+            fileChooser.Filter.AddPattern("*.clong");
+            if(fileChooser.Run() == (int) ResponseType.Accept) {
+                var fileTuple = FileManager.Open(fileChooser.Filename);
+                docView.SetText(fileTuple.Item1);
+                currentFile = fileChooser.Filename;
+                Title = AppSettings.WindowTitle + " - " + currentFile;
+            }
+            fileChooser.Dispose();
         }
         
         private void switchViews(ViewType view) {
