@@ -11,12 +11,13 @@ using System.Collections.Generic;
 
 namespace Clonger.Data {
     static class FileManager {
-        public static void Save(string fileName, string docText) {
+        public static void Save(
+                string fileName, string docText, List<Example> examples) {
             
         }
         
-        public static (string, string) Open(string fileName) {
-            return ("", "");
+        public static (string, (List<Example>, string)) Open(string fileName) {
+            return ("", (new List<Example>(), ""));
         }
     }
 }

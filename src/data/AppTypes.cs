@@ -38,7 +38,16 @@ namespace Clonger.Data {
         public string ResourcePath;
     }
     
+    // Formatted document for showing grammar and stuff
     struct Document {
         public List<DocumentSnippet> Snippets;
+    }
+    
+    // Representation of an example
+    struct Example {
+        public string Romanization;
+        public string Ipa;
+        public string Gloss;
+        public string Translation;
     }
 }

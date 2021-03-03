@@ -145,7 +145,8 @@ namespace Clonger.Presentation {
             if(fileChooser.Run() == (int) ResponseType.Accept) {
                 FileManager.Save(
                     fileChooser.Filename,
-                    docView.GetText()
+                    docView.GetText(),
+                    exView.Examples
                 );
                 currentFile = fileChooser.Filename;
                 Title = AppSettings.WindowTitle + " - " + currentFile;
@@ -184,7 +185,10 @@ namespace Clonger.Presentation {
             fileChooser.Filter.AddPattern("*.clong");
             if(fileChooser.Run() == (int) ResponseType.Accept) {
                 var fileTuple = FileManager.Open(fileChooser.Filename);
+                
                 docView.SetText(fileTuple.Item1);
+                exView.UpdateExamples(fileTuple.Item2.Item1);
+                
                 currentFile = fileChooser.Filename;
                 Title = AppSettings.WindowTitle + " - " + currentFile;
             }
