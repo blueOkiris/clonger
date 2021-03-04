@@ -68,6 +68,19 @@ namespace Clonger.Presentation {
             saveButton.Clicked += (object sender, EventArgs args) => {
                 if(currentFile == "") {
                     saveFile();
+                } else {
+                    FileManager.Save(
+                        currentFile,
+                        docView.GetText(), exView.Examples, dictView.Words
+                    );
+                    var popup = new Dialog(
+                        "Success", this, DialogFlags.DestroyWithParent
+                    );
+                    popup.ContentArea.Add(new Label("Successfully saved!"));
+                    popup.AddButton("Okay", ResponseType.Accept);
+                    popup.ShowAll();
+                    popup.Run();
+                    popup.Dispose();
                 }
             };
             menuOptionBar.PackStart(
@@ -151,6 +164,15 @@ namespace Clonger.Presentation {
                 );
                 currentFile = fileChooser.Filename;
                 Title = AppSettings.WindowTitle + " - " + currentFile;
+                var popup = new Dialog(
+                    "Success", this, DialogFlags.DestroyWithParent
+                );
+                popup.ContentArea.Add(new Label("Successfully saved!"));
+                popup.AddButton("Okay", ResponseType.Accept);
+                popup.ShowAll();
+                popup.Resizable = false;
+                popup.Run();
+                popup.Dispose();
             }
             fileChooser.Dispose();
         }
@@ -189,7 +211,7 @@ namespace Clonger.Presentation {
                 
                 docView.SetText(fileTuple.Item1);
                 exView.UpdateExamples(fileTuple.Item2.Item1);
-                
+                dictView.UpdateWords(fileTuple.Item2.Item2);
                 
                 currentFile = fileChooser.Filename;
                 Title = AppSettings.WindowTitle + " - " + currentFile;
