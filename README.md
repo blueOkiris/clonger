@@ -4,6 +4,12 @@
 
 A tool for designing conlangs
 
+## Current Planned Changes
+
+ - Documentation on how to use the application
+ - Improved formatting in the Document section
+ - More complex dictionaries using a drop down to see (optional) aditional information
+
 ## Features
 
 The general idea is drawn out in the file [Conlang Creation Tool Design.pdf](./docs/Conlang Creation Tool Design.pdf)
