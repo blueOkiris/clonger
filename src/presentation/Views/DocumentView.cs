@@ -136,7 +136,7 @@ namespace Clonger.Presentation.Views {
                             datum.Buffer.TagTable.Add(bold);
                             var iter = datum.Buffer.EndIter;
                             datum.Buffer.InsertWithTags(
-                                ref iter, tableSnip.Data[row, col], bold
+                                ref iter, tableSnip.Data[row, col].Trim(), bold
                             );
                             datumFrame.Add(datum);
                             
