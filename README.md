@@ -106,9 +106,9 @@ That's pretty much it. From here on, you type your characters, then copy and pas
 
 #### Language Documentation Manager
 
-If you now click the Document button, you'll be taken to another view with two text areas. The top area will show real time formatting while the bottom area is another text input area.
+If you now click the Document button, you'll be taken to another view with two text areas. The top area will show formatting after pressing the "Update Format View" button while the bottom area is another text input area.
 
-This is the first view which has data that is saved to the .clong file. The plain text is saved, and the formatting is regenerated upon reopening the file.
+This is the first view which has data that is saved to the .clong file. The plain text is saved.
 
 There are a few different types of data you can add to this view:
  - Unformatted text
@@ -190,6 +190,25 @@ Also note, that the formatting view has become too big for its area and now has 
 And that'll cover the document tool.
 
 #### Dictionary Storage System
+
+The dictionary view is fairly straight forward. You can search and sort the list of words and create new ones.
+
+Let's start with the additional menu bar:
+![dict menu](./docs/users-guide-img/dict-menu.png)
+
+The big long bar in stretching across is the search bar. You type in your keyword and then click either the T. Search or W. Search buttons. T. Search will search for a term under the "Translation" column whereas W. Search uses the romanization Word column.
+
+The sorts work similarly, just alphabetical sorting, instead of a search.
+
+Finally, there's the + button which is used to create new words. It shows a popup view:
+![dict popup](./docs/users-guide-img/dict-popup.png)
+
+As you can see, you provide the root word (in your romanization), its translation in your native language, and the part of speech of the word. Additionally, there is a multiline text input section to add additional details like conjugations or etymologies or whatever other details you may want to add.
+
+Once words have been added, they'll appear in a table below the menu bar:
+![dict words](./docs/users-guide-img/dict-words.png)
+
+You'll notice that each word has a drop down for the additional details as well as a delete button for removal.
 
 #### Example List View
 
