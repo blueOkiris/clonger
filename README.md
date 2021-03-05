@@ -18,10 +18,6 @@ Essentially, there's
 
 In the project's root folder, run the command `dotnet run`
 
-## Current Planned Changes
-
- - More complex dictionaries using a drop down to see (optional) aditional information
-
 ## User's Guide
 
 #### Table of Contents
