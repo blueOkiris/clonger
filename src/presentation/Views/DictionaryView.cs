@@ -65,9 +65,17 @@ namespace Clonger.Presentation.Views {
                 dialog.ContentArea.Add(new Label("Part of Speech:"));
                 var posInput = new Entry();
                 dialog.ContentArea.Add(posInput);
+                dialog.ContentArea.Add(new Label("Additional Info:"));
+                var infoBox = new ScrolledWindow();
+                var info = new TextView();
+                infoBox.Add(info);
+                dialog.ContentArea.Add(infoBox);
                 dialog.AddButton("Add Word", ResponseType.Accept);
                 dialog.AddButton("Cancel", ResponseType.Cancel);
                 dialog.ShowAll();
+                int width, height;
+                dialog.GetSize(out width, out height);
+                dialog.SetSizeRequest(width * 2, height);
                 dialog.Resizable = false;
                 
                 if(dialog.Run() == (int) ResponseType.Accept) {
@@ -75,7 +83,8 @@ namespace Clonger.Presentation.Views {
                         0, new WordEntry {
                             Word = wordInput.Buffer.Text,
                             Translation = transInput.Buffer.Text,
-                            PartOfSpeech = posInput.Buffer.Text
+                            PartOfSpeech = posInput.Buffer.Text,
+                            Additional = info.Buffer.Text
                         }
                     );
                     updateWordDisplay();
