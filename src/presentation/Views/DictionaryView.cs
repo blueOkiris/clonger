@@ -125,6 +125,9 @@ namespace Clonger.Presentation.Views {
             posTitleFrame.Add(posTitle);
             wordList.Attach(posTitleFrame, 4, 0, 2, 1);
             
+            var emptTitleFrame = new Frame();
+            wordList.Attach(emptTitleFrame, 5, 0, 1, 1);
+            
             int row = 1;
             foreach(var entry in Words) {
                 var wordFrame = new Frame();
@@ -144,8 +147,21 @@ namespace Clonger.Presentation.Views {
                     Words.Remove(entry);
                     updateWordDisplay();
                 };
-                wordList.Attach(deleteButton, 5, row, 1, 1);
-                row++;
+                wordList.Attach(deleteButton, 5, row, 1, 2);
+                
+                var expanderFrame = new Frame();
+                var expander = new Expander("Additional Info");
+                expander.Expanded = false;
+                var infoBox = new ScrolledWindow();
+                var infoText = new TextView();
+                infoText.Editable = false;
+                infoText.Buffer.Text = entry.Additional;
+                infoBox.Add(infoText);
+                expander.Add(infoBox);
+                expanderFrame.Add(expander);
+                wordList.Attach(expanderFrame, 0, row + 1, 6, 1);
+                
+                row += 2;
             }
             
             wordListContainer.Add(wordList);

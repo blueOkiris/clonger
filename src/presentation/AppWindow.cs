@@ -197,8 +197,6 @@ namespace Clonger.Presentation {
         }
         
         private void openFile() {
-            newFile();
-            
             var fileChooser = new FileChooserDialog(
                 "Open File", this, FileChooserAction.Open,
                 "Cancel", ResponseType.Cancel,
@@ -207,6 +205,8 @@ namespace Clonger.Presentation {
             fileChooser.Filter = new FileFilter();
             fileChooser.Filter.AddPattern("*.clong");
             if(fileChooser.Run() == (int) ResponseType.Accept) {
+                newFile();
+                
                 var fileTuple = FileManager.Open(fileChooser.Filename);
                 
                 docView.SetText(fileTuple.Item1);

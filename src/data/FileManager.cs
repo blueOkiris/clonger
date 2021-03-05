@@ -47,6 +47,11 @@ namespace Clonger.Data {
                 ).Append(',');
                 wordList.Append(
                     entry.PartOfSpeech.Replace(",", "\\c").Replace(";", "\\s")
+                ).Append(',');
+                wordList.Append(
+                    entry.Additional.Replace(
+                        ",", "\\c"
+                    ).Replace(";", "\\s").Replace("\n", "\\N")
                 ).Append(';');
             }
             
@@ -87,6 +92,12 @@ namespace Clonger.Data {
                         srcs[1].Replace("\\c", ",").Replace("\\s", ";"),
                     PartOfSpeech =
                         srcs[2].Replace("\\c", ",").Replace("\\s", ";"),
+                    Additional =
+                        srcs.Length > 3 ?
+                            srcs[3].Replace(
+                                "\\c", ","
+                            ).Replace("\\s", ";").Replace("\\N", "\n") :
+                            ""
                 });
             }
             
