@@ -36,13 +36,18 @@ namespace Clonger.Presentation.Views {
         }
         
         private void addInput() {
+            var inputBox = new VBox(false, 0);
+            
             var inputFrame = new Frame("Input");
             var inputScroll = new ScrolledWindow();
             inputScroll.VscrollbarPolicy = PolicyType.Automatic;
             inputScroll.HscrollbarPolicy = PolicyType.Never;
+            inputView = new TextView();            
+            inputScroll.Add(inputView);
+            inputFrame.Add(inputScroll);
             
-            inputView = new TextView();
-            inputView.Buffer.Changed +=
+            var updateButton = new Button("Update Format View");
+            updateButton.Clicked +=
                 (object sender, EventArgs args) => {
                     if(formatScroll.Children.Length > 0) {
                         formatScroll.Remove(formatScroll.Child);
@@ -57,9 +62,10 @@ namespace Clonger.Presentation.Views {
                     AppWindow.Instance.ShowAll();
                 };
             
-            inputScroll.Add(inputView);
-            inputFrame.Add(inputScroll);
-            PackStart(inputFrame, true, true, AppSettings.Margin);
+            inputBox.PackStart(inputFrame, true, true, 0);
+            inputBox.PackStart(updateButton, false, false, 0);
+            
+            PackStart(inputBox, true, true, AppSettings.Margin);
         }
         
         private VBox documentToVBox(Document document) {

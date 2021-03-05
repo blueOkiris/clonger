@@ -65,9 +65,17 @@ namespace Clonger.Presentation.Views {
                 dialog.ContentArea.Add(new Label("Part of Speech:"));
                 var posInput = new Entry();
                 dialog.ContentArea.Add(posInput);
+                dialog.ContentArea.Add(new Label("Additional Info:"));
+                var infoBox = new ScrolledWindow();
+                var info = new TextView();
+                infoBox.Add(info);
+                dialog.ContentArea.Add(infoBox);
                 dialog.AddButton("Add Word", ResponseType.Accept);
                 dialog.AddButton("Cancel", ResponseType.Cancel);
                 dialog.ShowAll();
+                int width, height;
+                dialog.GetSize(out width, out height);
+                dialog.SetSizeRequest(width * 2, height);
                 dialog.Resizable = false;
                 
                 if(dialog.Run() == (int) ResponseType.Accept) {
@@ -75,7 +83,8 @@ namespace Clonger.Presentation.Views {
                         0, new WordEntry {
                             Word = wordInput.Buffer.Text,
                             Translation = transInput.Buffer.Text,
-                            PartOfSpeech = posInput.Buffer.Text
+                            PartOfSpeech = posInput.Buffer.Text,
+                            Additional = info.Buffer.Text
                         }
                     );
                     updateWordDisplay();
@@ -125,6 +134,9 @@ namespace Clonger.Presentation.Views {
             posTitleFrame.Add(posTitle);
             wordList.Attach(posTitleFrame, 4, 0, 2, 1);
             
+            var emptTitleFrame = new Frame();
+            wordList.Attach(emptTitleFrame, 5, 0, 1, 1);
+            
             int row = 1;
             foreach(var entry in Words) {
                 var wordFrame = new Frame();
@@ -144,8 +156,21 @@ namespace Clonger.Presentation.Views {
                     Words.Remove(entry);
                     updateWordDisplay();
                 };
-                wordList.Attach(deleteButton, 5, row, 1, 1);
-                row++;
+                wordList.Attach(deleteButton, 5, row, 1, 2);
+                
+                var expanderFrame = new Frame();
+                var expander = new Expander("Additional Info");
+                expander.Expanded = false;
+                var infoBox = new ScrolledWindow();
+                var infoText = new TextView();
+                infoText.Editable = false;
+                infoText.Buffer.Text = entry.Additional;
+                infoBox.Add(infoText);
+                expander.Add(infoBox);
+                expanderFrame.Add(expander);
+                wordList.Attach(expanderFrame, 0, row + 1, 6, 1);
+                
+                row += 2;
             }
             
             wordListContainer.Add(wordList);

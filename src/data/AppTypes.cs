@@ -56,5 +56,6 @@ namespace Clonger.Data {
         public string Word;
         public string Translation;
         public string PartOfSpeech;
+        public string Additional;
     }
 }
