@@ -57,3 +57,41 @@ This is the meat and potatoes of the application. This is where all the work is 
 
 Moving on, I'll now explain the various application views in order by the view switching area's buttons from right-to-left
 
+#### IPA Typing Tool
+
+If you click the "IPA" button in the view switching area or simply start the application, you'll be met with the IPA Typing Tool View as seen in the View Area's example image.
+
+Here, you'll notice two areas:
+
+a hotkey area
+![hotkey area](./docs/users-guide-img/ipa-hotkey.png)
+
+and an input area
+![input area](./docs/users-guide-img/ipa-input.png)
+
+If you type normally in the input area, you may not notice the point of this view. In order to understand, you must press and hold the alt key and one of the keys on the left side of one of the items in the hotkey view.
+
+Let's use 'a' as an example. Here's what it lists in the hotkey view:
+![a hotkey](./docs/users-guide-img/ipa-a-hotkey.png)
+
+If we type an 'a' normally in the input area, we'll simply get an 'a'
+![just an a](./docs/users-guide-img/ipa-just-a.png)
+
+However, if we now press Alt+a, we'll type a different character:
+![a alt](./docs/users-guide-img/ipa-alt-1.png)
+
+Now, if we let go and press Alt+a again, we'll get that same character,
+![a alt 2](./docs/users-guide-img/ipa-alt-2-1.png)
+
+but if keep holding Alt and press a again, then we'll begin to cycle through the special characters listed after a in the hotkey table!
+![a alt 22](./docs/users-guide-img/ipa-alt-2-2.png)
+![a alt 23](./docs/users-guide-img/ipa-alt-2-3.png)
+
+So we can type all of those characters just by pressing Alt+a over and over again, like an old T9 phone keyboard
+![a alt all](./docs/users-guide-img/ipa-a-all.png)
+
+Note that if you hold Alt and switch hotkey, it will place a new character starting from the beginning with the new hotkey. It won't replace the current hotkey as it does if you repeatedly press your chosen character. This makes it so you can type faster.
+
+So if I'm on the third Alt+a and then switch to Alt+b, it will leave that character and place down the first Alt+b as if I had let go and pressed Alt+b. If I switch back to Alt+a, then it'll leave the Alt+b character alone, and reset to the first of a.
+
+That's pretty much it. From here on, you type your characters, then copy and paste them where you need them.
