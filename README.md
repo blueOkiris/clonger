@@ -24,6 +24,14 @@ In the project's root folder, run the command `dotnet run`
 
 ## User's Guide
 
+#### Table of Contents
+
+1. [General Application Control](#general-application-control)
+2. [IPA Typing Tool](#ipa-typing-tool)
+3. [Language Documentation Manager](#language-documentation-manager)
+4. [Dictionary Storage System](#dictionary-storage-system)
+5. [Example List View](#example-list-view)
+
 #### General Application Control
 
 You'll notice three sections when starting up the application:
@@ -95,3 +103,92 @@ Note that if you hold Alt and switch hotkey, it will place a new character start
 So if I'm on the third Alt+a and then switch to Alt+b, it will leave that character and place down the first Alt+b as if I had let go and pressed Alt+b. If I switch back to Alt+a, then it'll leave the Alt+b character alone, and reset to the first of a.
 
 That's pretty much it. From here on, you type your characters, then copy and paste them where you need them.
+
+#### Language Documentation Manager
+
+If you now click the Document button, you'll be taken to another view with two text areas. The top area will show real time formatting while the bottom area is another text input area.
+
+This is the first view which has data that is saved to the .clong file. The plain text is saved, and the formatting is regenerated upon reopening the file.
+
+There are a few different types of data you can add to this view:
+ - Unformatted text
+ - Formatted text
+ - Tables
+ - Images
+
+If you simply start typing, you'll just get plain text:
+![doc plain](./docs/users-guide-img/doc-plain.png)
+
+However, there's support for a few basic formattings for text, all of which can be combined with each other:
+ - title which simply a larger font
+ - subtitle which is also a larger font, but slightly smaller
+ - bold, italicized, and underlined which are self explanatory.
+
+The format for making formatted text is to do the following:
+
+`[ <format option 1>, <format option 2>, ... : <text to be formatted> ]`
+
+where \<format option *whatever*\> is `title`, `subtitle`, `bold`, `italicized`, or `underlined`.
+
+Note that if you actually want to type a `[` or `]`, then escape it with `\[` and `\]`
+
+Let's see these in action:
+![format](./docs/users-guide-img/doc-format.png)
+
+Moving on, the next thing you can do is add an image. We'll go ahead and use one of the images you've seen before
+![ipa alt a all](./docs/users-guide-img/ipa-a-all.png)
+and place it in the documentation view.
+
+The formatting for that command is: `[image:<location of your image>]`
+
+On my computer, that location would be `/home/dylan/Documents/Code Projects/clonger/docs/users-guide-img/ipa-a-all.png`
+
+That makes the final command:
+`[image:/home/dylan/Documents/Code Projects/clonger/docs/users-guide-img/ipa-a-all.png]`
+
+Here's what it looks like in the document. Note how text gets split around the image in the formatting:
+![format img](./docs/users-guide-img/doc-image.png)
+
+Finally, let's talk tables.
+
+Tables use the following format:
+`[table,# rows, #cols : <header 1>, <header 2>, ... <row 1 col 1>, <row 1 col 2>, ..., <row 2 col 1>, <row 2 col 2>, ...]`
+
+You can also format it using multiple lines for readability:
+```
+[table,# rows, #cols:
+    <header 1>, <header 2>, ...
+    <row 1 col 1>, <row 1 col 2>, ...,
+    <row 2 col 1>, <row 2 col 2>, ...
+]
+```
+
+And here's an example. Once again, it splits the text:
+![table](./docs/users-guide-img/doc-table.png)
+
+Example text:
+```
+[table,10,10:
+,Column 1, Column 2, Column 3, Column 4, Column 5, Column 6, Column 7, Column 8, Column 9,
+Row 1, a, b, c, d, e, f, g, h, i,
+Row 2, a, b, c, d, e, f, g, h, i,
+Row 3, a, b, c, d, e, f, g, h, i,
+Row 4, a, b, c, d, e, f, g, h, i,
+Row 5, a, b, c, d, e, f, g, h, i,
+Row 6, a, b, c, d, e, f, g, h, i,
+Row 7, a, b, c, d, e, f, g, h, i,
+Row 8, a, b, c, d, e, f, g, h, i,
+Row 9, a, b, c, d, e, f, g, h, i
+]
+```
+
+Note that not every cell has to be filled in. If you leave it blank between the comments, it'll be empty as per the example.
+
+Also note, that the formatting view has become too big for its area and now has a scrollbar and can be scrolled:
+![scrolled table](./docs/users-guide-img/doc-table-scrolled.png)
+
+And that'll cover the document tool.
+
+#### Dictionary Storage System
+
+#### Example List View
