@@ -192,3 +192,17 @@ And that'll cover the document tool.
 #### Dictionary Storage System
 
 #### Example List View
+
+The example list view, selected by clicking the "Examples" button, is relatively straightforward.
+
+To add an example, you provide the romanization of the example, the IPA for the example, a gloss of the example, and a Native Language translation of the example to the input area and click submit.
+
+Here's what the input area looks like:
+![ex input](./docs/users-guide-img/ex-input.png)
+
+After clicking submit a few times, several examples will appear in the list view:
+![ex populated](./docs/users-guide-img/ex-populated.png)
+
+Note that each example also has a delete button beneath it, which will delete the example in the case of a mistake.
+
+Like the Dictionary and the Document views, the data from this view is also saved to file.
