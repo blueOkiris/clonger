@@ -6,7 +6,7 @@ A tool for designing conlangs
 
 ## Features
 
-The general idea is drawn out in the file [Conlang Creation Tool Design.pdf](./docs/Conlang Creation Tool Design.pdf)
+The general idea is drawn out in the file [Conlang Creation Tool Design.pdf](./docs/Conlang-Creation-Tool-Design.pdf)
 
 Essentially, there's
  - an area that allows you to type IPA symbols easily and then copy them into various areas
