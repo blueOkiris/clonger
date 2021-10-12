@@ -4,4 +4,4 @@ version = "21.1011.948"
 edition = "2018"
 
 [dependencies]
-
+eframe = "0.14.0"
