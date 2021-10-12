@@ -4,6 +4,10 @@
  */
 
 mod app;
+mod ipaview;
+mod docview;
+mod dictview;
+mod exview;
 
 use eframe::{ NativeOptions, run_native };
 

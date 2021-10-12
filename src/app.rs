@@ -4,12 +4,10 @@
  */
 
 use eframe::epi::{ App, Frame };
-use eframe::egui::{
-    CtxRef, TopBottomPanel, SidePanel, CentralPanel, Window,
-    Slider, Layout, Align, Hyperlink,
-    github_link_file, warn_if_debug_build
-};
+use eframe::egui::{ CtxRef, TopBottomPanel, SidePanel };
 use eframe::egui::menu;
+
+use crate::{ ipaview, docview, dictview, exview };
 
 enum WindowState {
     Document,
@@ -31,6 +29,7 @@ impl Default for ClongerWindow {
     }
 }
 
+// Main functions for app construction
 impl App for ClongerWindow {
     fn name(&self) -> &str {
         return "Clonger";
@@ -40,37 +39,21 @@ impl App for ClongerWindow {
         create_menu_bar(self, ctx, frame);
         create_side_navigation(self, ctx, frame);
 
-        CentralPanel::default().show(ctx, |ui| {
-            match self.state {
-                WindowState::Document => {
-                    ui.heading("Document");
-
-                }, WindowState::Dictionary => {
-                    ui.heading("Dictionary");
-
-                }, WindowState::Examples => {
-                    ui.heading("Examples");
-
-                }
-            }
-        });
+        match self.state {
+            WindowState::Document => docview::create_doc_view(self, ctx, frame),
+            WindowState::Dictionary =>
+                dictview::create_dict_view(self, ctx, frame),
+            WindowState::Examples => exview::create_ex_view(self, ctx, frame),
+        }
 
         if self.ipa_view_open {
-            create_ipa_view(self, ctx, frame);
+            ipaview::create_ipa_view(self, ctx, frame);
         }
     }
 }
 
-fn create_ipa_view(
-        me : &mut ClongerWindow, ctx : &CtxRef, frame : &mut Frame<'_>,) {
-    Window::new("IPA Typer").show(ctx, |ui| {
-        ui.label("Windows can be moved by dragging them.");
-        
-    });
-}
-
 fn create_side_navigation(
-        me : &mut ClongerWindow, ctx : &CtxRef, frame : &mut Frame<'_>,) {
+        me : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
     SidePanel::right("View").show(ctx, |ui| {
         ui.heading("View");
 
