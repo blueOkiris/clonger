@@ -3,7 +3,7 @@
  * Description: Define the app window
  */
 
-use eframe::epi::{ App, Frame, Storage };
+use eframe::epi::{ App, Frame };
 use eframe::egui::{
     CtxRef, TopBottomPanel, SidePanel, CentralPanel, Window,
     Slider, Layout, Align, Hyperlink,
@@ -28,17 +28,6 @@ impl Default for ClongerWindow {
 impl App for ClongerWindow {
     fn name(&self) -> &str {
         return "Clonger";
-    }
-
-    fn setup(
-            &mut self,
-            _ctx : &CtxRef, _frame : &mut Frame,
-            _storage : Option<&dyn Storage>) {
-        
-    }
-
-    fn save(&mut self, _storage : &mut dyn Storage) {
-
     }
 
     fn update(&mut self, ctx : &CtxRef, frame : &mut Frame<'_>) {
