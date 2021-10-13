@@ -9,6 +9,7 @@ use eframe::egui::{
     FontFamily, FontDefinitions
 };
 use eframe::egui::menu;
+use std::borrow::Cow;
 
 use crate::{ ipaview, docview, dictview, exview };
 
@@ -40,6 +41,13 @@ impl Default for ClongerWindow {
     }
 }
 
+#[cfg(target_os = "windows")]
+const SUPPORT_FONT_PATH : &'static [u8] =
+    include_bytes!("C:\\Windows\\Fonts\\arial.ttf");
+#[cfg(target_os = "linux")]
+const SUPPORT_FONT_PATH : &'static [u8] =
+    include_bytes!("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
+
 // Main functions for app construction
 impl App for ClongerWindow {
     fn name(&self) -> &str {
@@ -52,16 +60,14 @@ impl App for ClongerWindow {
         // Set font to Arial to support all characters
         let mut font = FontDefinitions::default();
         font.font_data.insert(
-            "arial".to_owned(),std::borrow::Cow::Borrowed(
-                include_bytes!("C:\\Windows\\Fonts\\arial.ttf")
-            )
+            "support_font".to_owned(), Cow::Borrowed(SUPPORT_FONT_PATH)
         );
         font.fonts_for_family
             .get_mut(&FontFamily::Monospace)
-            .unwrap().insert(0, "arial".to_owned());
+            .unwrap().insert(0, "support_font".to_owned());
         font.fonts_for_family
             .get_mut(&FontFamily::Proportional)
-            .unwrap().insert(0, "arial".to_owned());
+            .unwrap().insert(0, "support_font".to_owned());
         ctx.set_fonts(font);
     }
 
