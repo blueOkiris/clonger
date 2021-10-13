@@ -4,7 +4,7 @@
  */
 
 use eframe::epi::{ App, Frame };
-use eframe::egui::{ CtxRef, TopBottomPanel, SidePanel };
+use eframe::egui::{ CtxRef, TopBottomPanel, SidePanel, FontDefinitions, FontFamily };
 use eframe::egui::menu;
 
 use crate::{ ipaview, docview, dictview, exview };
@@ -19,7 +19,9 @@ pub struct ClongerWindow {
     state : WindowState,
     ipa_view_open : bool,
     
-    pub ipa_tb : String
+    pub ipa_tb : String,
+    pub ipa_cur_char : char,
+    pub ipa_char_count : usize
 }
 
 impl Default for ClongerWindow {
@@ -27,7 +29,10 @@ impl Default for ClongerWindow {
         Self {
             state : WindowState::Document,
             ipa_view_open : true,
-            ipa_tb : String::new()
+
+            ipa_tb : String::new(),
+            ipa_cur_char : '\0',
+            ipa_char_count : 0
         }
     }
 }
