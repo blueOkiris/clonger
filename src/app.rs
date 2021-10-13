@@ -17,14 +17,17 @@ enum WindowState {
 
 pub struct ClongerWindow {
     state : WindowState,
-    ipa_view_open : bool
+    ipa_view_open : bool,
+    
+    pub ipa_tb : String
 }
 
 impl Default for ClongerWindow {
     fn default() -> Self {
         Self {
             state : WindowState::Document,
-            ipa_view_open : true
+            ipa_view_open : true,
+            ipa_tb : String::new()
         }
     }
 }
@@ -53,27 +56,27 @@ impl App for ClongerWindow {
 }
 
 fn create_side_navigation(
-        me : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
+        win : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
     SidePanel::right("View").show(ctx, |ui| {
         ui.heading("View");
 
         if ui.button("Toggle IPA").clicked() {
-            me.ipa_view_open = !me.ipa_view_open;
+            win.ipa_view_open = !win.ipa_view_open;
         }
         if ui.button("Document").clicked() {
-            me.state = WindowState::Document;
+            win.state = WindowState::Document;
         }
         if ui.button("Dictionary").clicked() {
-            me.state = WindowState::Dictionary;
+            win.state = WindowState::Dictionary;
         }
         if ui.button("Examples").clicked() {
-            me.state = WindowState::Examples;
+            win.state = WindowState::Examples;
         }
     });
 }
 
 fn create_menu_bar(
-        me : &mut ClongerWindow, ctx : &CtxRef, frame : &mut Frame<'_>,) {
+        win : &mut ClongerWindow, ctx : &CtxRef, frame : &mut Frame<'_>,) {
     TopBottomPanel::top("top_panel").show(ctx, |ui| {
         menu::bar(ui, |ui| {
             menu::menu(ui, "File", |ui| {
@@ -96,16 +99,16 @@ fn create_menu_bar(
             
             menu::menu(ui, "View", |ui| {
                 if ui.button("Toggle IPA").clicked() {
-                    me.ipa_view_open = !me.ipa_view_open;
+                    win.ipa_view_open = !win.ipa_view_open;
                 }
                 if ui.button("Document").clicked() {
-                    me.state = WindowState::Document;
+                    win.state = WindowState::Document;
                 }
                 if ui.button("Dictionary").clicked() {
-                    me.state = WindowState::Dictionary;
+                    win.state = WindowState::Dictionary;
                 }
                 if ui.button("Examples").clicked() {
-                    me.state = WindowState::Examples;
+                    win.state = WindowState::Examples;
                 }
             });
         });

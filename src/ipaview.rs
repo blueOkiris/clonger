@@ -4,15 +4,20 @@
  */
 
 use crate::app::ClongerWindow;
-use eframe::egui::{ CtxRef, Window, Pos2 };
+use eframe::egui::{ CtxRef, Window, Pos2, TextEdit, TextStyle };
 use eframe::epi::Frame;
 
 pub fn create_ipa_view(
-        _me : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
+        win : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
     Window::new("IPA Typer").default_pos(
         Pos2::new(800000.0, 800000.0) // Put at bottom of screen
-    ).show(ctx, |ui| {
-        ui.label("Windows can be moved by dragging them.");
-        
+    ).scroll(true).show(ctx, |ui| {
+        ui.label("Type into here with shortcuts to create IPA:");
+        ui.add_sized(
+            ui.available_size(),
+            TextEdit::multiline(&mut win.ipa_tb)
+                .desired_rows(6)
+                .text_style(TextStyle::Monospace)
+        );
     });
 }
