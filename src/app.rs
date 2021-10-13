@@ -3,8 +3,11 @@
  * Description: Define the app window
  */
 
-use eframe::epi::{ App, Frame };
-use eframe::egui::{ CtxRef, TopBottomPanel, SidePanel, FontDefinitions, FontFamily };
+use eframe::epi::{ App, Frame, Storage };
+use eframe::egui::{
+    CtxRef, TopBottomPanel, SidePanel,
+    FontFamily, FontDefinitions
+};
 use eframe::egui::menu;
 
 use crate::{ ipaview, docview, dictview, exview };
@@ -41,6 +44,25 @@ impl Default for ClongerWindow {
 impl App for ClongerWindow {
     fn name(&self) -> &str {
         return "Clonger";
+    }
+    
+    fn setup(
+            &mut self, ctx: &CtxRef,
+            _frame : &mut Frame<'_>, _storage : Option<&dyn Storage>) {
+        // Set font to Arial to support all characters
+        let mut font = FontDefinitions::default();
+        font.font_data.insert(
+            "arial".to_owned(),std::borrow::Cow::Borrowed(
+                include_bytes!("C:\\Windows\\Fonts\\arial.ttf")
+            )
+        );
+        font.fonts_for_family
+            .get_mut(&FontFamily::Monospace)
+            .unwrap().insert(0, "arial".to_owned());
+        font.fonts_for_family
+            .get_mut(&FontFamily::Proportional)
+            .unwrap().insert(0, "arial".to_owned());
+        ctx.set_fonts(font);
     }
 
     fn update(&mut self, ctx : &CtxRef, frame : &mut Frame<'_>) {
