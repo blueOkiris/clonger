@@ -9,8 +9,37 @@ use eframe::egui::{ CtxRef, Window, Pos2, TextEdit, TextStyle };
 use eframe::epi::Frame;
 
 const IPA_CHARS : &'static [(char, &'static [&'static str])] = &[
-    ('a', &[ "ɑ", "æ", "ɐ", "ɑ̃" ])
+    ('a', &[ "ɑ", "æ", "ɐ", "ɑ̃" ]),
+    ('b', &[ "β", "ɓ" ]),
+    ('c', &[ "ç", "ɕ"]),
+    ('d', &[ "ð", "d͡ʒ", "ɖ", "ɗ" ]),
+    ('e', &[ "ə", "ɚ", "ɵ" ]),
+    ('3', &[ "ɛ", "ɜ", "ɝ", "ɛ̃" ]),
+    ('g', &[ "ɠ", "ɢ"]),
+    ('h', &[ "ħ", "ɦ", "ɥ", "ɧ", "ʜ" ])/*,
+    ('i', &[]),
+    ('j', &[]),
+    ('l', &[]),
+    ('m', &[]),
+    ('n', &[]),
+    ('o', &[]),
+    ('0', &[]),
+    ('p', &[]),
+    ('r', &[]),
+    ('s', &[]),
+    ('t', &[]),
+    ('u', &[]),
+    ('v', &[]),
+    ('w', &[]),
+    ('x', &[]),
+    ('y', &[]),
+    ('z', &[]),
+    ('2', &[]),
+    ('q', &[]),
+    ('f', &[]),
+    ('4', &[]),*/
 ];
+const MAX_DISP_COL : u8 = 4;
 
 pub fn create_ipa_view(
         win : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
@@ -21,6 +50,28 @@ pub fn create_ipa_view(
             "Press Alt+<key> multiple times based on this table",
             " to enter special characters:"
         ));
+        let mut i = 0;
+        while i < IPA_CHARS.len() {
+            ui.horizontal(|ui,| {
+                for col in 0..MAX_DISP_COL {
+                    if i >= IPA_CHARS.len() {
+                        break;
+                    }
+                    
+                    if col != 0 {
+                        ui.label("|");
+                    }
+
+                    ui.label(format!("{}", IPA_CHARS[i].0));
+                    ui.label(":");
+                    for hotkey in IPA_CHARS[i].1 {
+                        ui.label(format!("{}", hotkey));
+                    }
+
+                    i += 1;
+                }
+            });
+        }
 
         ui.label("Type into here with shortcuts to create IPA:");
         let resp = ui.add_sized(
