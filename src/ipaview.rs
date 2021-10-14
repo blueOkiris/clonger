@@ -63,7 +63,7 @@ pub fn create_ipa_view(
                     }
 
                     ui.label(format!("{}", IPA_CHARS[i].0));
-                    ui.label(":");
+                    ui.label("→");
                     for hotkey in IPA_CHARS[i].1 {
                         ui.label(format!("{}", hotkey));
                     }
