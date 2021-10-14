@@ -8,7 +8,7 @@ use eframe::egui::{ CtxRef, CentralPanel };
 use eframe::epi::Frame;
 
 pub fn create_doc_view(
-        _me : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
+        _win : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
     CentralPanel::default().show(ctx, |ui| {
         ui.heading("Document");
         
