@@ -74,12 +74,12 @@ pub fn create_ipa_view(
         }
 
         ui.label("Type into here with shortcuts to create IPA:");
-        let resp = ui.add_sized(
-            ui.available_size(),
+        let editor =
             TextEdit::multiline(&mut win.ipa_tb)
                 .desired_rows(6)
-                .text_style(TextStyle::Monospace)
-        );
+                .text_style(TextStyle::Monospace);
+        
+        let resp = ui.add_sized(ui.available_size(), editor);
 
         let inp = ui.input();
         let mods = inp.modifiers;
@@ -92,6 +92,7 @@ pub fn create_ipa_view(
             if mods.alt
                     && !mods.ctrl && !mods.shift
                     && !mods.command && !mods.mac_cmd {
+                
                 let typed_char = win.ipa_tb.remove(win.ipa_tb.len() - 1);
 
                 let char_map : HashMap<char, &'static [&'static str]> =

@@ -6,7 +6,7 @@
 use eframe::epi::{ App, Frame, Storage };
 use eframe::egui::{
     CtxRef, TopBottomPanel, SidePanel,
-    FontFamily, FontDefinitions
+    FontFamily, FontDefinitions, TextStyle
 };
 use eframe::egui::menu;
 use std::borrow::Cow;
@@ -47,6 +47,8 @@ const SUPPORT_FONT_PATH : &'static [u8] =
 #[cfg(target_os = "linux")]
 const SUPPORT_FONT_PATH : &'static [u8] =
     include_bytes!("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
+const FONT_SIZE : f32 = 18.0;
+const HEADING_FONT_SIZE : f32 = 22.0;
 
 // Main functions for app construction
 impl App for ClongerWindow {
@@ -68,6 +70,21 @@ impl App for ClongerWindow {
         font.fonts_for_family
             .get_mut(&FontFamily::Proportional)
             .unwrap().insert(0, "support_font".to_owned());
+        font.family_and_size.insert(
+            TextStyle::Small, (FontFamily::Proportional, FONT_SIZE)
+        );
+        font.family_and_size.insert(
+            TextStyle::Body, (FontFamily::Proportional, FONT_SIZE)
+        );
+        font.family_and_size.insert(
+            TextStyle::Button, (FontFamily::Proportional, FONT_SIZE)
+        );
+        font.family_and_size.insert(
+            TextStyle::Heading, (FontFamily::Proportional, HEADING_FONT_SIZE)
+        );
+        font.family_and_size.insert(
+            TextStyle::Monospace, (FontFamily::Monospace, FONT_SIZE)
+        );
         ctx.set_fonts(font);
     }
 
