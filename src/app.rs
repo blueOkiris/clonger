@@ -25,7 +25,9 @@ pub struct ClongerWindow {
     
     pub ipa_tb : String,
     pub ipa_cur_char : char,
-    pub ipa_char_count : usize
+    pub ipa_char_count : usize,
+
+    pub doc_code : String
 }
 
 impl Default for ClongerWindow {
@@ -36,7 +38,9 @@ impl Default for ClongerWindow {
 
             ipa_tb : String::new(),
             ipa_cur_char : '\0',
-            ipa_char_count : 0
+            ipa_char_count : 0,
+
+            doc_code : String::new()
         }
     }
 }

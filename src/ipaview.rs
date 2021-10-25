@@ -45,7 +45,7 @@ pub fn create_ipa_view(
         win : &mut ClongerWindow, ctx : &CtxRef, _frame : &mut Frame<'_>,) {
     Window::new("IPA Typer").default_pos(
         Pos2::new(800000.0, 800000.0) // Put at bottom of screen
-    ).scroll(true).show(ctx, |ui| {
+    ).vscroll(true).show(ctx, |ui| {
         ui.label(format!("{}{}",
             "Press Alt+<key> multiple times based on this table",
             " to enter special characters:"
@@ -81,7 +81,7 @@ pub fn create_ipa_view(
                 .desired_rows(8)
                 .text_style(TextStyle::Monospace)
                 .id(Id::new("ipa_tb"));
-        let cursor = TextEdit::<String>::cursor(ui, Id::new("ipa_tb"));
+        let cursor = TextEdit::cursor(ui, Id::new("ipa_tb"));
         let cursor_pos = match cursor {
             Some(cursor_pair) => cursor_pair.primary.ccursor.index,
             None => ipa_tb_last_char
