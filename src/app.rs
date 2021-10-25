@@ -41,12 +41,10 @@ impl Default for ClongerWindow {
     }
 }
 
-#[cfg(target_os = "windows")]
 const SUPPORT_FONT_PATH : &'static [u8] =
-    include_bytes!("C:\\Windows\\Fonts\\arial.ttf");
-#[cfg(target_os = "linux")]
-const SUPPORT_FONT_PATH : &'static [u8] =
-    include_bytes!("/usr/share/fonts/truetype/dejavu/DejaVuSans.ttf");
+    include_bytes!("fonts/Symbola.ttf");
+const SUPPORT_FONT_MONO_PATH : &'static [u8] =
+    include_bytes!("fonts/Symbola.ttf");
 const FONT_SIZE : f32 = 18.0;
 const HEADING_FONT_SIZE : f32 = 22.0;
 
@@ -64,12 +62,16 @@ impl App for ClongerWindow {
         font.font_data.insert(
             "support_font".to_owned(), Cow::Borrowed(SUPPORT_FONT_PATH)
         );
-        font.fonts_for_family
-            .get_mut(&FontFamily::Monospace)
-            .unwrap().insert(0, "support_font".to_owned());
+        font.font_data.insert(
+            "support_font_mono".to_owned(),
+            Cow::Borrowed(SUPPORT_FONT_MONO_PATH)
+        );
         font.fonts_for_family
             .get_mut(&FontFamily::Proportional)
             .unwrap().insert(0, "support_font".to_owned());
+        font.fonts_for_family
+            .get_mut(&FontFamily::Monospace)
+            .unwrap().insert(0, "support_font_mono".to_owned());
         font.family_and_size.insert(
             TextStyle::Small, (FontFamily::Proportional, FONT_SIZE)
         );

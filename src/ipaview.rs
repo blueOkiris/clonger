@@ -5,7 +5,7 @@
 
 use crate::app::ClongerWindow;
 use std::collections::HashMap;
-use eframe::egui::{ CtxRef, Window, Pos2, TextEdit, TextStyle };
+use eframe::egui::{ CtxRef, Window, Pos2, TextEdit, TextStyle, Id };
 use eframe::epi::Frame;
 
 const IPA_CHARS : &'static [(char, &'static [&'static str])] = &[
@@ -75,13 +75,19 @@ pub fn create_ipa_view(
 
         ui.label("");
         ui.label("Type into here with shortcuts to create IPA:");
+        let ipa_tb_last_char = win.ipa_tb.len() -1;
         let editor =
             TextEdit::multiline(&mut win.ipa_tb)
                 .desired_rows(8)
-                .text_style(TextStyle::Monospace);
-        
+                .text_style(TextStyle::Monospace)
+                .id(Id::new("ipa_tb"));
+        let cursor = TextEdit::<String>::cursor(ui, Id::new("ipa_tb"));
+        let cursor_pos = match cursor {
+            Some(cursor_pair) => cursor_pair.primary.ccursor.index,
+            None => ipa_tb_last_char
+        };
         let resp = ui.add_sized(ui.available_size(), editor);
-
+        
         let inp = ui.input();
         let mods = inp.modifiers;
         if !mods.alt {
@@ -93,32 +99,49 @@ pub fn create_ipa_view(
             if mods.alt
                     && !mods.ctrl && !mods.shift
                     && !mods.command && !mods.mac_cmd {
-                
-                let typed_char = win.ipa_tb.remove(win.ipa_tb.len() - 1);
+                // Get last typed character
+                let typed_char =
+                    win.ipa_tb.chars().nth(cursor_pos).unwrap();
 
+                // Get access to the map of special symbols
                 let char_map : HashMap<char, &'static [&'static str]> =
                     IPA_CHARS.iter().cloned().collect();
+
+                // Get list of symbols corresponding to typed char
                 let new_char_option = char_map.get(&typed_char);
                 match new_char_option {
-                    None => win.ipa_tb.push(typed_char),
+                    // No alt exists, do nothing
+                    None => {},
+
+                    // Alt exists, replace typed key
                     Some(ipa_str_arr) => {
+                        // Delete typed character
+                        win.ipa_tb = delete_char(&mut win.ipa_tb, cursor_pos);
+
+                        /*
+                         * If key is pressed multiple times, cycle & delete old
+                         * Else, just put new character
+                         */
                         if win.ipa_cur_char != typed_char {
                             win.ipa_cur_char = typed_char;
                             win.ipa_char_count = 0;
-                        } else {
-                            let cur_ipa_char = ipa_str_arr[win.ipa_char_count];
-                            for _c in cur_ipa_char.chars() {
+                        } else {                            
+                            // Remove the old one
+                            let cur_char = ipa_str_arr[win.ipa_char_count];
+                            for _c in cur_char.chars() {
                                 win.ipa_tb.pop();
                             }
 
+                            // Progress to next new_char
                             win.ipa_char_count += 1;
                             if win.ipa_char_count >= ipa_str_arr.len() {
                                 win.ipa_char_count = 0;
                             }
                         }
 
-                        let ipa_char = ipa_str_arr[win.ipa_char_count].chars();
-                        for c in ipa_char {
+                        // Insert new character at end
+                        let new_char = ipa_str_arr[win.ipa_char_count];
+                        for c in new_char.chars() {
                             win.ipa_tb.push(c);
                         }
                     }
@@ -126,4 +149,15 @@ pub fn create_ipa_view(
             }
         }
     });
+}
+
+fn delete_char(base_data : &mut String, ind : usize) -> String {
+    let pre_c = base_data.chars().take(ind);
+    let post_c = base_data.chars().skip(ind + 1);
+    let without_c = pre_c.chain(post_c);
+    let mut new_str = String::new();
+    for c in without_c {
+        new_str.push(c);
+    }
+    return new_str.clone();
 }
