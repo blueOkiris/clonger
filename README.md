@@ -2,11 +2,39 @@
 
 ## Description
 
-The ultimate tool for designing conlangs, all in one
+The ultimate tool for designing conlangs, all in one.
+
+Type IPA easily, make notes on your conlang's history and special features, and reference created words in an extensive dictionary system.
 
 ## Build
 
 Using [Cargo](https://www.rust-lang.org/tools/install), run `cargo build --release`
+
+## Architecture
+
+
+## Architecture
+
+- Plugin based
+  - Create a primary window and build other functionality through plugins
+  - Keyboard popup, Documentation view, and Dictionary view all plugins
+- IPA Keyboard
+  - Typing IPA symbols on a computer can be annoying
+  - Using a tool like [this one](https://ipa.typeit.org/full/) makes it easier
+  - I plan to produce something similar that will be in a floating window within the main application window
+    * Buttons to click on symbols
+    * Alt+Shift will allow typing in *any* box in the application window
+- Documentation
+  - Documentation is best via LaTeX or Markdown
+  - Support limited markdown functionality with support for plugins that can replace the default document section
+  - Used for noting sound changes, lore, phonology, etc
+- Dictionary
+  - Not just translation
+  - Supports current pronunciation, meaning, and part of speech
+  - Feature: additional notes like declension/conjugation as well as irregularities
+  - Feature: etymological history of word including previous pronuniation, meaning, and part of speech in an expanding table
+- Examples
+  - Table of entries which take conlang sentence, ipa transcription, gloss, and base language transcription
 
 ## Sub-licenses
 
