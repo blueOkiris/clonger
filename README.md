@@ -12,9 +12,6 @@ Using [Cargo](https://www.rust-lang.org/tools/install), run `cargo build --relea
 
 ## Architecture
 
-
-## Architecture
-
 - Plugin based
   - Create a primary window and build other functionality through plugins
   - Keyboard popup, Documentation view, and Dictionary view all plugins
@@ -35,6 +32,16 @@ Using [Cargo](https://www.rust-lang.org/tools/install), run `cargo build --relea
   - Feature: etymological history of word including previous pronuniation, meaning, and part of speech in an expanding table
 - Examples
   - Table of entries which take conlang sentence, ipa transcription, gloss, and base language transcription
+
+TODO:
+- [ ] - Create main window
+- [ ] - Choose events and define plugin system for pages (Dict, Ex, Doc)
+- [ ] - Choose events and define plugin system for popup windows
+- [ ] - Create keyboard plugin
+- [ ] - Create documentation plugin
+- [ ] - Create dictionary plugin
+- [ ] - Create example plugin
+- [ ] - Package everything together neatly
 
 ## Sub-licenses
 
