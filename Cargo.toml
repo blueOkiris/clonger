@@ -4,4 +4,4 @@ version = "22.217.1"
 edition = "2021"
 
 [dependencies]
-imgui = "0.8.2"
+gtk4 = "0.4.6"
