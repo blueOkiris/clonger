@@ -20,7 +20,8 @@ Using [Cargo](https://www.rust-lang.org/tools/install), run `cargo build --relea
   - Using a tool like [this one](https://ipa.typeit.org/full/) makes it easier
   - I plan to produce something similar that will be in a floating window within the main application window
     * Buttons to click on symbols
-    * Alt+Shift will allow typing in *any* box in the application window
+    * Alt+Shift will allow typing 
+    * Types into a box which can then be copied
 - Documentation
   - Documentation is best via LaTeX or Markdown
   - Support limited markdown functionality with support for plugins that can replace the default document section
@@ -35,13 +36,36 @@ Using [Cargo](https://www.rust-lang.org/tools/install), run `cargo build --relea
 
 TODO:
 - [ ] - Create main window
-- [ ] - Choose events and define plugin system for pages (Dict, Ex, Doc)
-- [ ] - Choose events and define plugin system for popup windows
+  - [x] - Basic window
+  - [ ] - Create menu bar
+  - [ ] - Create file management (new, open, save, save as, and change tracking)
+  - [ ] - Create tab page system
+- [ ] - Create plugin system
+  - [ ] - Choose events and define plugin system for pages (Dict, Ex, Doc)
+  - [ ] - Choose events and define plugin system for popup windows
 - [ ] - Create keyboard plugin
+  - [ ] - Create popup
+  - [ ] - Add buttons and implement typing
+  - [ ] - Add keyboard shortcuts
 - [ ] - Create documentation plugin
+  - [ ] - Create tab page
+  - [ ] - Implement text field and undo/redo
+  - [ ] - Implement preview within text field, i.e. \*\<word\>\* shows up as *\*\<word\>\** and \_\_\<word\>\_\_ shows up as __\_\_\<word\>\_\___
+  - [ ] - Implement integration with saving and opening
 - [ ] - Create dictionary plugin
+  - [ ] - create tab page
+  - [ ] - Implement basic entry
+  - [ ] - Implement additional info
+  - [ ] - Implement etymology view
+  - [ ] - integrate with saving and opening
 - [ ] - Create example plugin
+  - [ ] - create tab page
+  - [ ] - Implement example entry
+  - [ ] - Implement bolding and italics of conlang and base language, respectively
+  - [ ] - integrate with saving and opening
 - [ ] - Package everything together neatly
+  - [ ] - Figure out how to build plugins along with main app
+  - [ ] - Figure out how to make a package for various systems (namely Arch, Flatpak, and Windows)
 
 ## Sub-licenses
 
