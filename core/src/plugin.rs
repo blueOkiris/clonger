@@ -4,7 +4,7 @@
  */
 
 use std::fs::read_dir;
-use libloading::{ Library, Symbol };
+use libloading::{ Library, Symbol, Error };
 
 type KeyEventHandler = unsafe fn(&String, bool, bool, bool, bool) -> isize;
 
@@ -29,13 +29,16 @@ impl Plugin {
             key: &String,
             ctrl_pressed: bool, alt_pressed: bool,
             shift_pressed: bool, super_pressed: bool) {
-        let key_pressed_handler: Symbol<KeyEventHandler> = unsafe {
-            self.lib.get(b"on_key_pressed").unwrap()
+        let handler: Result<Symbol<KeyEventHandler>, Error> = unsafe {
+            self.lib.get(b"on_key_pressed")
         };
-        unsafe {
-            key_pressed_handler(
-                key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
-            );
+        match handler {
+            Err(_) => {}, // Just ignore if missing the function
+            Ok(key_pressed_handler) => unsafe {
+                key_pressed_handler(
+                    key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
+                );
+            }
         }
     }
     
@@ -44,13 +47,16 @@ impl Plugin {
             key: &String,
             ctrl_pressed: bool, alt_pressed: bool,
             shift_pressed: bool, super_pressed: bool) {
-        let key_released_handler: Symbol<KeyEventHandler> = unsafe {
-            self.lib.get(b"on_key_pressed").unwrap()
+        let handler: Result<Symbol<KeyEventHandler>, Error> = unsafe {
+            self.lib.get(b"on_key_released")
         };
-        unsafe {
-            key_released_handler(
-                key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
-            );
+        match handler {
+            Err(_) => {}, // Just ignore if missing the function
+            Ok(key_released_handler) => unsafe {
+                key_released_handler(
+                    key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
+                );
+            }
         }
     }
 }
