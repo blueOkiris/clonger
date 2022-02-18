@@ -1,17 +1,2 @@
-[package]
-name = "clonger"
-version = "22.217.1"
-edition = "2021"
-
-[dependencies]
-gtk4 = "0.4.6"
-libloading = "0.7.3"
-
-[lib]
-name = "documentation"
-crate-type = ["cdylib"]
-path = "src/plugins/doc.rs"
-
-[[bin]]
-name = "clonger"
-path = "src/main.rs"
+[workspace]
+members = [ "core", "doc", "ipa" ]

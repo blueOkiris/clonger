@@ -1,0 +1,11 @@
+[package]
+name = "ipa"
+version = "22.217.1"
+edition = "2021"
+
+[dependencies]
+
+[lib]
+name = "ipa"
+crate-type = ["cdylib"]
+path = "src/ipa.rs"

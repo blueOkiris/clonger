@@ -1,0 +1,12 @@
+[package]
+name = "clonger"
+version = "22.217.1"
+edition = "2021"
+
+[[bin]]
+name = "clonger"
+path = "src/main.rs"
+
+[dependencies]
+gtk4 = "0.4.6"
+libloading = "0.7.3"
