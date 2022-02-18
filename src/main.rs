@@ -4,6 +4,7 @@
  */
 
 mod app;
+mod plugin;
 
 use app::init_app;
 

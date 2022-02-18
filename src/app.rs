@@ -10,6 +10,7 @@ use gtk4::{
     }
 };
 use std::env::set_var;
+use crate::plugin::load_plugins;
 
 const APP_ID: &'static str = "com.blueokiris.Clonger";
 const GSK_RENDERER: &'static str = "cairo";
@@ -40,6 +41,8 @@ fn setup_gui(win: &ApplicationWindow) {
     // TODO: Add content area where plugin pages will load
     // TODO: Track changes & update file name based on if plugin changes (bool)
     // TODO: Add keyboard shortcuts for creating new, opening, and saving files
+
+    load_plugins(); // TODO: Eventually take window info to lock plugins in
     // TODO: Create app pages from plugins and connect their events
     // TODO: Create sub windows from plugins and connect their events
 }

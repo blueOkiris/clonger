@@ -10,6 +10,10 @@ Type IPA easily, make notes on your conlang's history and special features, and 
 
 Using [Cargo](https://www.rust-lang.org/tools/install), run `cargo build --release`
 
+__Plugins:__
+
+The application will look for `.so` plugin libraries in the folder `./target/release/` which is local to the application directory.
+
 ## Architecture
 
 - Plugin based
