@@ -48,8 +48,10 @@ impl App {
                 .default_width(WIN_MIN_WIDTH).default_height(WIN_MIN_HEIGHT)
                 .build();
             win.set_size_request(WIN_MIN_WIDTH, WIN_MIN_HEIGHT);
-            win.show();
+            
             Self::setup_gui(app, &win, &setup_tx);
+
+            win.show();
         });
 
         /*
