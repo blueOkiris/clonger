@@ -3,6 +3,13 @@
  * Description: Basic version of the documentation plugin for clonger
  */
 
+const NAME: &'static str = "Documentation";
+
+#[no_mangle]
+pub extern "C" fn name(name_ref: &mut String) {
+    *name_ref = String::from(NAME);
+}
+
 #[no_mangle]
 pub extern "C" fn on_key_pressed(
         key: &String,
