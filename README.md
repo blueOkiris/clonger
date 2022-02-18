@@ -10,9 +10,15 @@ Type IPA easily, make notes on your conlang's history and special features, and 
 
 Using [Cargo](https://www.rust-lang.org/tools/install), run `cargo build --release`
 
+__Run Dependencies:__
+
+ - gtk4
+
 __Plugins:__
 
 The application will look for `.so` plugin libraries in the folder `./target/release/` which is local to the application directory.
+
+The default IPA keyboard, documentation, dictionary, and example plugins are built alongside the clonger application, so you don't need to worry about them.
 
 ## Architecture
 
@@ -41,10 +47,10 @@ The application will look for `.so` plugin libraries in the folder `./target/rel
 TODO:
 - [ ] - Create main window
   - [x] - Basic window
-  - [ ] - Create menu bar
   - [ ] - Create file management (new, open, save, save as, and change tracking)
   - [ ] - Create tab page system
 - [ ] - Create plugin system
+  - [x] - Setup loading and interface for plugins
   - [ ] - Choose events and define plugin system for pages (Dict, Ex, Doc)
   - [ ] - Choose events and define plugin system for popup windows
 - [ ] - Create keyboard plugin
