@@ -52,28 +52,15 @@ impl App {
             Self::setup_gui(app, &win, &setup_tx);
         });
 
-        // Set up event handling (i.e. plugin calling) receive thread
+        /*
+         * Set up event handling (i.e. plugin calling) receive thread
+         * Ideally, we could just call plugin events from the setup_gui
+         * closures, but unfortunately, we can't borrow into multiple closures
+         * so instead, this async thing is used
+         */
         spawn(move || {
             while let Ok(event) = self.rx.recv() {
-                match event.event_type {
-                    AsyncEventType::KeyPressed => {
-                        for plugin in &self.plugins {
-                            plugin.on_key_pressed(
-                                &event.key,
-                                event.ctrl_pressed, event.alt_pressed,
-                                event.shift_pressed, event.super_pressed
-                            );
-                        }
-                    }, AsyncEventType::KeyReleased => {
-                        for plugin in &self.plugins {
-                            plugin.on_key_released(
-                                &event.key,
-                                event.ctrl_pressed, event.alt_pressed,
-                                event.shift_pressed, event.super_pressed
-                            );
-                        }
-                    }
-                }
+                self.handle_async_events(event);
             }
         });
 
@@ -83,18 +70,50 @@ impl App {
     }
 
     fn setup_gui(
-            _app: &Application, win: &ApplicationWindow,
+            app: &Application, win: &ApplicationWindow,
             tx: &Sender<AsyncEvent>) {
         // TODO: Add global data for file name and display it in a label
         // TODO: Add content area where plugin pages will load
         // TODO: Track changes & update f name based on if plugin changes (bool)
         // TODO: Add keyboard shortcuts for new, opening, and saving files
 
-        /*
-        * Connect plugin functions to window key events
-        * These are needed as to save, open, and new you use keyboard shortcuts!
-        */
+        Self::attach_key_event_senders(app, win, tx);
+
+        // TODO: Create app pages from plugins and connect their events
+        // TODO: Create sub windows from plugins and connect their events
+    }
+
+    fn handle_async_events(&self, event: AsyncEvent) {
+        match event.event_type {
+            AsyncEventType::KeyPressed => {
+                for plugin in &self.plugins {
+                    plugin.on_key_pressed(
+                        &event.key,
+                        event.ctrl_pressed, event.alt_pressed,
+                        event.shift_pressed, event.super_pressed
+                    );
+                }
+            }, AsyncEventType::KeyReleased => {
+                for plugin in &self.plugins {
+                    plugin.on_key_released(
+                        &event.key,
+                        event.ctrl_pressed, event.alt_pressed,
+                        event.shift_pressed, event.super_pressed
+                    );
+                }
+            }
+        }
+    }
+
+    /*
+    * Connect plugin functions to window key events (via tx)
+    * These are needed as to save, open, and new you use keyboard shortcuts!
+    */
+    fn attach_key_event_senders(
+            _app: &Application, win: &ApplicationWindow,
+            tx: &Sender<AsyncEvent>) {
         let ev_cont = EventControllerKey::new();
+
         let key_pressed_tx = tx.clone();
         ev_cont.connect_key_pressed(move |_ev_cont, key, _key_code, state| {
             let key_name = String::from(key.name().unwrap().as_str());
@@ -114,6 +133,7 @@ impl App {
 
             Inhibit(false)
         });
+
         let key_released_tx = tx.clone();
         ev_cont.connect_key_released(move |_ev_cont, key, _key_code, state| {
             let key_name = String::from(key.name().unwrap().as_str());
@@ -131,9 +151,7 @@ impl App {
                 ctrl_pressed, alt_pressed, shift_pressed, super_pressed
             )).unwrap();
         });
-        win.add_controller(&ev_cont);
 
-        // TODO: Create app pages from plugins and connect their events
-        // TODO: Create sub windows from plugins and connect their events
+        win.add_controller(&ev_cont);
     }
 }
