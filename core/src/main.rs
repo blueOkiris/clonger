@@ -5,9 +5,11 @@
 
 mod app;
 mod plugin;
+mod event;
 
-use app::init_app;
+use app::App;
 
 fn main() {
-    init_app();
+    let app: App = App::new();
+    app.start();
 }

@@ -13,3 +13,14 @@ pub extern "C" fn on_key_pressed(
         key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
     );
 }
+
+#[no_mangle]
+pub extern "C" fn on_key_released(
+        key: &String,
+        ctrl_pressed: bool, alt_pressed: bool,
+        shift_pressed: bool, super_pressed: bool) {
+    println!(
+        "Key release from IPA! Key: {}, Ctrl: {}, Alt: {}, Shift: {}, Sup: {}",
+        key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
+    );
+}
