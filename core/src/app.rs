@@ -88,6 +88,8 @@ impl App {
     fn handle_async_events(&self, event: AsyncEvent) {
         match event.event_type {
             AsyncEventType::KeyPressed => {
+                // TODO: Allow modifying the "file" via plugins
+                
                 for plugin in &self.plugins {
                     plugin.on_key_pressed(
                         &event.key,
@@ -95,6 +97,8 @@ impl App {
                         event.shift_pressed, event.super_pressed
                     );
                 }
+
+                // TODO: Handle saving here
             }, AsyncEventType::KeyReleased => {
                 for plugin in &self.plugins {
                     plugin.on_key_released(
