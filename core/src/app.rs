@@ -27,6 +27,12 @@ const WIN_MIN_HEIGHT: i32 = 800;
 const WIN_TITLE: &'static str = "Clonger";
 const WIN_DEF_MARGIN: i32 = 10;
 
+// Data structure for sending info to the gui for updating ui
+pub struct GuiUpdateData {
+    pub fname: String,
+    pub changed: bool
+}
+
 pub struct App {
     plugins: Vec<Plugin>,
     plugin_names: Vec<String>,
@@ -46,7 +52,7 @@ impl App {
         Self {
             plugins, plugin_names,
             tx, rx,
-            file: String::new(), fname: String::from("New File"),
+            file: String::new(), fname: String::from("New File *"),
             changed: true
         }
     }
@@ -96,7 +102,7 @@ impl App {
     fn setup_gui(
             _app: &Application, win: &ApplicationWindow,
             tx: &Sender<AsyncEvent>,
-            fname_rx: &Arc<Mutex<Receiver<Option<String>>>>,
+            fname_rx: &Arc<Mutex<Receiver<Option<GuiUpdateData>>>>,
             plugin_names: Vec<String>, fname: String) {
         // Main vbox for file name and tabs and such
         let content_box = Box::builder()
@@ -121,16 +127,17 @@ impl App {
         Self::create_notebook(&content_box, tx, plugin_names);
         // TODO: Create sub windows from plugins and connect their events
 
-        Self::attach_key_event_senders(win, tx, fname_rx);
+        Self::attach_key_event_senders(win, &fname_label, tx, fname_rx);
         // TODO: Add keyboard shortcuts for new, opening, and saving files
     }
 
     fn handle_async_events(
-            &self, event: AsyncEvent, tx: &Sender<Option<String>>) {
+            &self, event: AsyncEvent, tx: &Sender<Option<GuiUpdateData>>) {
         match event.event_type {
             AsyncEventType::KeyPressed => {
                 // TODO: Allow modifying the "file" via plugins
                 let cur_fname = self.fname.clone();
+                let cur_changed = self.changed;
 
                 for plugin in &self.plugins {
                     plugin.on_key_pressed(
@@ -143,8 +150,11 @@ impl App {
                 // TODO: Handle saving here
 
                 // Use reverse channel to 
-                if self.fname != cur_fname {
-                    tx.send(Some(self.fname.clone())).unwrap();
+                if self.fname != cur_fname || self.changed != cur_changed {
+                    tx.send(Some(GuiUpdateData {
+                        fname: self.fname.clone(),
+                        changed: self.changed
+                    })).unwrap();
                 } else {
                     tx.send(None).unwrap();
                 }
@@ -195,12 +205,14 @@ impl App {
     * These are needed as to save, open, and new you use keyboard shortcuts!
     */
     fn attach_key_event_senders(
-            win: &ApplicationWindow, tx: &Sender<AsyncEvent>,
-            fname_rx: &Arc<Mutex<Receiver<Option<String>>>>) {
+            win: &ApplicationWindow, fname_label: &Label,
+            tx: &Sender<AsyncEvent>,
+            fname_rx: &Arc<Mutex<Receiver<Option<GuiUpdateData>>>>) {
         let ev_cont = EventControllerKey::new();
 
         let key_pressed_tx = tx.clone();
         let key_pressed_rx = fname_rx.clone();
+        let key_pressed_fname_label = fname_label.clone();
         ev_cont.connect_key_pressed(move |_ev_cont, key, _key_code, state| {
             let key_name = String::from(key.name().unwrap().as_str());
             let ctrl_pressed =
@@ -218,8 +230,12 @@ impl App {
             )).unwrap();
 
             match key_pressed_rx.lock().unwrap().recv().unwrap() {
-                Some(name) => println!("Name: {}!", name),
-                None => println!("No new name!")
+                Some(data) => {
+                    key_pressed_fname_label.set_label((
+                        data.fname + if data.changed { " *" } else { "" }
+                    ).as_str());
+                },
+                None => {}
             }
 
             Inhibit(false)
@@ -244,8 +260,8 @@ impl App {
             )).unwrap();
 
             match key_released_rx.lock().unwrap().recv().unwrap() {
-                Some(name) => println!("Name: {}!", name),
-                None => println!("No new name!")
+                Some(_) => {},
+                None => {}
             }
         });
 
