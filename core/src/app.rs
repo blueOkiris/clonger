@@ -9,11 +9,12 @@ use gtk4::{
     Align, Orientation,
     prelude::{
         ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt
-    }, gdk::ModifierType, traits::GtkWindowExt
+    }, gdk::ModifierType,
+    traits::GtkWindowExt,
 };
 use std::{
     thread::spawn,
-    sync::mpsc::{ Sender, Receiver, channel },
+    sync::{ Arc, Mutex, mpsc::{ Sender, Receiver, channel } },
     env::set_var
 };
 use crate::plugin::{ Plugin, load_plugins };
@@ -27,12 +28,14 @@ const WIN_TITLE: &'static str = "Clonger";
 const WIN_DEF_MARGIN: i32 = 10;
 
 pub struct App {
-    pub plugins: Vec<Plugin>,
-    pub plugin_names: Vec<String>,
-    pub tx: Sender<AsyncEvent>,
-    pub rx: Receiver<AsyncEvent>,
-    pub file: String,
-    pub fname: String
+    plugins: Vec<Plugin>,
+    plugin_names: Vec<String>,
+
+    // Send event data from gui to logic:
+    tx: Sender<AsyncEvent>,
+    rx: Receiver<AsyncEvent>,
+
+    file: String, fname: String, changed: bool
 }
 
 impl App {
@@ -41,8 +44,10 @@ impl App {
         let (plugins, plugin_names) = load_plugins();
         let (tx, rx) = channel();
         Self {
-            plugins, plugin_names, tx, rx,
-            file: String::new(), fname: String::from("New File")
+            plugins, plugin_names,
+            tx, rx,
+            file: String::new(), fname: String::from("New File"),
+            changed: true
         }
     }
 
@@ -52,6 +57,8 @@ impl App {
         let setup_tx = self.tx.clone();
         let setup_fname = self.fname.clone();
         let setup_plugin_names = self.plugin_names.clone();
+        let (fname_tx, fname_rx) = channel(); // Reverse of App tx, rx
+        let clonable_fname_rx = Arc::new(Mutex::new(fname_rx)).clone();
         gtk_app.connect_activate(move |app| {
             let win = ApplicationWindow::builder()
                 .application(app)
@@ -61,10 +68,10 @@ impl App {
             win.set_size_request(WIN_MIN_WIDTH, WIN_MIN_HEIGHT);
             
             Self::setup_gui(
-                app, &win, &setup_tx,
+                app, &win, &setup_tx, &clonable_fname_rx,
                 setup_plugin_names.clone(), setup_fname.clone()
             );
-
+            
             win.show();
         });
 
@@ -74,9 +81,10 @@ impl App {
          * closures, but unfortunately, we can't borrow into multiple closures
          * so instead, this async thing is used
          */
+        let fname_tx_event = fname_tx.clone();
         spawn(move || {
             while let Ok(event) = self.rx.recv() {
-                self.handle_async_events(event);
+                self.handle_async_events(event, &fname_tx_event);
             }
         });
 
@@ -88,6 +96,7 @@ impl App {
     fn setup_gui(
             _app: &Application, win: &ApplicationWindow,
             tx: &Sender<AsyncEvent>,
+            fname_rx: &Arc<Mutex<Receiver<Option<String>>>>,
             plugin_names: Vec<String>, fname: String) {
         // Main vbox for file name and tabs and such
         let content_box = Box::builder()
@@ -99,27 +108,29 @@ impl App {
         win.set_child(Some(&content_box));
 
         // Create a view for file name (as well as that there are changes)
-        let fname_viewer = Label::builder()
+        let fname_label = Label::builder()
             .label(fname.as_str())
             .halign(Align::Center).valign(Align::Start)
             .hexpand(true).vexpand(false)
             .margin_top(WIN_DEF_MARGIN)
             .margin_bottom(0)
             .build();
-        content_box.append(&fname_viewer);
+        content_box.append(&fname_label);
         // TODO: Track changes & update f name based on if plugin changes (bool)
         
         Self::create_notebook(&content_box, tx, plugin_names);
         // TODO: Create sub windows from plugins and connect their events
 
-        Self::attach_key_event_senders(win, tx);
+        Self::attach_key_event_senders(win, tx, fname_rx);
         // TODO: Add keyboard shortcuts for new, opening, and saving files
     }
 
-    fn handle_async_events(&self, event: AsyncEvent) {
+    fn handle_async_events(
+            &self, event: AsyncEvent, tx: &Sender<Option<String>>) {
         match event.event_type {
             AsyncEventType::KeyPressed => {
                 // TODO: Allow modifying the "file" via plugins
+                let cur_fname = self.fname.clone();
 
                 for plugin in &self.plugins {
                     plugin.on_key_pressed(
@@ -130,6 +141,13 @@ impl App {
                 }
 
                 // TODO: Handle saving here
+
+                // Use reverse channel to 
+                if self.fname != cur_fname {
+                    tx.send(Some(self.fname.clone())).unwrap();
+                } else {
+                    tx.send(None).unwrap();
+                }
             }, AsyncEventType::KeyReleased => {
                 for plugin in &self.plugins {
                     plugin.on_key_released(
@@ -138,6 +156,8 @@ impl App {
                         event.shift_pressed, event.super_pressed
                     );
                 }
+
+                tx.send(None).unwrap();
             }
         }
     }
@@ -147,12 +167,12 @@ impl App {
             content_box: &Box, _tx: &Sender<AsyncEvent>,
             plugin_names: Vec<String>) {
         let nb = Notebook::builder()
-                .margin_top(0).margin_bottom(WIN_DEF_MARGIN)
-                .margin_start(WIN_DEF_MARGIN).margin_end(WIN_DEF_MARGIN)
-                .halign(Align::Fill).valign(Align::Fill)
-                .hexpand(true).vexpand(true)
-                .scrollable(true)
-                .build();
+            .margin_top(0).margin_bottom(WIN_DEF_MARGIN)
+            .margin_start(WIN_DEF_MARGIN).margin_end(WIN_DEF_MARGIN)
+            .halign(Align::Fill).valign(Align::Fill)
+            .hexpand(true).vexpand(true)
+            .scrollable(true)
+            .build();
 
         for name in plugin_names {
             // Check if it's a window plugin
@@ -175,10 +195,12 @@ impl App {
     * These are needed as to save, open, and new you use keyboard shortcuts!
     */
     fn attach_key_event_senders(
-            win: &ApplicationWindow, tx: &Sender<AsyncEvent>) {
+            win: &ApplicationWindow, tx: &Sender<AsyncEvent>,
+            fname_rx: &Arc<Mutex<Receiver<Option<String>>>>) {
         let ev_cont = EventControllerKey::new();
 
         let key_pressed_tx = tx.clone();
+        let key_pressed_rx = fname_rx.clone();
         ev_cont.connect_key_pressed(move |_ev_cont, key, _key_code, state| {
             let key_name = String::from(key.name().unwrap().as_str());
             let ctrl_pressed =
@@ -195,10 +217,16 @@ impl App {
                 ctrl_pressed, alt_pressed, shift_pressed, super_pressed
             )).unwrap();
 
+            match key_pressed_rx.lock().unwrap().recv().unwrap() {
+                Some(name) => println!("Name: {}!", name),
+                None => println!("No new name!")
+            }
+
             Inhibit(false)
         });
 
         let key_released_tx = tx.clone();
+        let key_released_rx = fname_rx.clone();
         ev_cont.connect_key_released(move |_ev_cont, key, _key_code, state| {
             let key_name = String::from(key.name().unwrap().as_str());
             let ctrl_pressed =
@@ -214,6 +242,11 @@ impl App {
                 key_name,
                 ctrl_pressed, alt_pressed, shift_pressed, super_pressed
             )).unwrap();
+
+            match key_released_rx.lock().unwrap().recv().unwrap() {
+                Some(name) => println!("Name: {}!", name),
+                None => println!("No new name!")
+            }
         });
 
         win.add_controller(&ev_cont);
