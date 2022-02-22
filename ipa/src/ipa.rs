@@ -12,22 +12,16 @@ pub extern "C" fn name(name_ref: &mut String) {
 
 #[no_mangle]
 pub extern "C" fn on_key_pressed(
-        key: &String,
-        ctrl_pressed: bool, alt_pressed: bool,
-        shift_pressed: bool, super_pressed: bool) {
-    println!(
-        "Key press from IPA! Key: {}, Ctrl: {}, Alt: {}, Shift: {}, Sup: {}",
-        key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
-    );
+        _key: &String,
+        _ctrl_pressed: bool, _alt_pressed: bool,
+        _shift_pressed: bool, _super_pressed: bool) {
+    // TODO: Implement key press event
 }
 
 #[no_mangle]
 pub extern "C" fn on_key_released(
-        key: &String,
-        ctrl_pressed: bool, alt_pressed: bool,
-        shift_pressed: bool, super_pressed: bool) {
-    println!(
-        "Key release from IPA! Key: {}, Ctrl: {}, Alt: {}, Shift: {}, Sup: {}",
-        key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
-    );
+        _key: &String,
+        _ctrl_pressed: bool, _alt_pressed: bool,
+        _shift_pressed: bool, _super_pressed: bool) {
+    // TODO: Implement key release event
 }
