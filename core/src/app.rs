@@ -6,9 +6,9 @@
 use gtk4::{
     Application, ApplicationWindow, EventControllerKey, Inhibit,
     Notebook, Box, Label,
-    Align, Orientation,
+    Align, Orientation, NotebookPage,
     prelude::{
-        ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt
+        ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt,
     }, gdk::ModifierType,
     traits::GtkWindowExt,
 };
@@ -124,10 +124,10 @@ impl App {
         content_box.append(&fname_label);
         // TODO: Track changes & update f name based on if plugin changes (bool)
         
-        Self::create_notebook(&content_box, tx, plugin_names);
+        let nb = Self::create_notebook(&content_box, tx, plugin_names);
         // TODO: Create sub windows from plugins and connect their events
 
-        Self::attach_key_event_senders(win, &fname_label, tx, fname_rx);
+        Self::attach_key_event_senders(win, &fname_label, tx, fname_rx, &nb);
         // TODO: Add keyboard shortcuts for new, opening, and saving files
     }
 
@@ -140,6 +140,10 @@ impl App {
                 let cur_changed = self.changed;
 
                 for plugin in &self.plugins {
+                    if plugin.name() != event.active_tab
+                            && !plugin.name().starts_with("w_") {
+                        continue;
+                    }
                     plugin.on_key_pressed(
                         &event.key,
                         event.ctrl_pressed, event.alt_pressed,
@@ -160,6 +164,10 @@ impl App {
                 }
             }, AsyncEventType::KeyReleased => {
                 for plugin in &self.plugins {
+                    if plugin.name() != event.active_tab
+                            && !plugin.name().starts_with("w_") {
+                        continue;
+                    }
                     plugin.on_key_released(
                         &event.key,
                         event.ctrl_pressed, event.alt_pressed,
@@ -175,7 +183,7 @@ impl App {
     // For non-window plugins, create a tabbed document from them
     fn create_notebook(
             content_box: &Box, _tx: &Sender<AsyncEvent>,
-            plugin_names: Vec<String>) {
+            plugin_names: Vec<String>) -> Notebook {
         let nb = Notebook::builder()
             .margin_top(0).margin_bottom(WIN_DEF_MARGIN)
             .margin_start(WIN_DEF_MARGIN).margin_end(WIN_DEF_MARGIN)
@@ -198,6 +206,7 @@ impl App {
         }
 
         content_box.append(&nb);
+        nb
     }
 
     /*
@@ -207,12 +216,14 @@ impl App {
     fn attach_key_event_senders(
             win: &ApplicationWindow, fname_label: &Label,
             tx: &Sender<AsyncEvent>,
-            fname_rx: &Arc<Mutex<Receiver<Option<GuiUpdateData>>>>) {
+            fname_rx: &Arc<Mutex<Receiver<Option<GuiUpdateData>>>>,
+            nb: &Notebook) {
         let ev_cont = EventControllerKey::new();
 
         let key_pressed_tx = tx.clone();
         let key_pressed_rx = fname_rx.clone();
         let key_pressed_fname_label = fname_label.clone();
+        let key_pressed_nb = nb.clone();
         ev_cont.connect_key_pressed(move |_ev_cont, key, _key_code, state| {
             let key_name = String::from(key.name().unwrap().as_str());
             let ctrl_pressed =
@@ -224,9 +235,19 @@ impl App {
             let super_pressed =
                 (state.bits() & ModifierType::SUPER_MASK.bits()) > 0;
 
+            let page_opt = key_pressed_nb.nth_page(
+                key_pressed_nb.current_page()
+            );
+            let page_title = match page_opt {
+                None => String::new(),
+                Some(page_wgt) => key_pressed_nb
+                    .tab_label_text(&page_wgt).unwrap().to_string()
+            };
+
             key_pressed_tx.send(AsyncEvent::key_pressed(
                 key_name,
-                ctrl_pressed, alt_pressed, shift_pressed, super_pressed
+                ctrl_pressed, alt_pressed, shift_pressed, super_pressed,
+                page_title
             )).unwrap();
 
             match key_pressed_rx.lock().unwrap().recv().unwrap() {
@@ -243,6 +264,7 @@ impl App {
 
         let key_released_tx = tx.clone();
         let key_released_rx = fname_rx.clone();
+        let key_released_nb = nb.clone();
         ev_cont.connect_key_released(move |_ev_cont, key, _key_code, state| {
             let key_name = String::from(key.name().unwrap().as_str());
             let ctrl_pressed =
@@ -254,9 +276,19 @@ impl App {
             let super_pressed =
                 (state.bits() & ModifierType::SUPER_MASK.bits()) > 0;
 
+            let page_opt = key_released_nb.nth_page(
+                key_released_nb.current_page()
+            );
+            let page_title = match page_opt {
+                None => String::new(),
+                Some(page_wgt) => key_released_nb
+                    .tab_label_text(&page_wgt).unwrap().to_string()
+            };
+
             key_released_tx.send(AsyncEvent::key_released(
                 key_name,
-                ctrl_pressed, alt_pressed, shift_pressed, super_pressed
+                ctrl_pressed, alt_pressed, shift_pressed, super_pressed,
+                page_title
             )).unwrap();
 
             match key_released_rx.lock().unwrap().recv().unwrap() {

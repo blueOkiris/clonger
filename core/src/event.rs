@@ -21,27 +21,32 @@ pub struct AsyncEvent {
     pub ctrl_pressed: bool,
     pub alt_pressed: bool,
     pub shift_pressed: bool,
-    pub super_pressed: bool
+    pub super_pressed: bool,
+    pub active_tab: String
 }
 
 impl AsyncEvent {
     pub fn key_pressed(
             key: String,
             ctrl_pressed: bool, alt_pressed: bool,
-            shift_pressed: bool, super_pressed: bool) -> Self {
+            shift_pressed: bool, super_pressed: bool,
+            active_tab: String) -> Self {
         Self {
             event_type: AsyncEventType::KeyPressed,
-            key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
+            key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed,
+            active_tab
         }
     }
 
     pub fn key_released(
             key: String,
             ctrl_pressed: bool, alt_pressed: bool,
-            shift_pressed: bool, super_pressed: bool) -> Self {
+            shift_pressed: bool, super_pressed: bool,
+            active_tab: String) -> Self {
         Self {
             event_type: AsyncEventType::KeyReleased,
-            key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
+            key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed,
+            active_tab
         }
     }
 }
