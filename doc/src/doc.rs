@@ -3,16 +3,21 @@
  * Description: Basic version of the documentation plugin for clonger
  */
 
+mod parse;
+
 use gtk4::{
-    Box, Orientation, ScrolledWindow, TextView, TextBuffer, Label,
-    prelude::{ BoxExt, TextViewExt, TextBufferExt }
+    Box, Orientation, ScrolledWindow, TextView, TextBuffer, Label, TextTag,
+    prelude::{ BoxExt, TextViewExt, TextBufferExt },
+    pango::{ Style, Underline }
 };
 use std::sync::{ Arc, Mutex };
+use crate::parse::parse_style_sections;
 
 type TabBuildFunc = fn(&Label) -> Box;
 
 const NAME: &'static str = "Documentation";
 const DEF_MARGIN: i32 = 10;
+const WEIGHT: i32 = 700;
 
 #[no_mangle]
 pub extern "C" fn name(name_ref: &mut String) {
@@ -50,7 +55,11 @@ pub extern "C" fn build_tab() -> TabBuildFunc {
 
         let buff = text.buffer();
         let insert_label = label.clone();
-        buff.connect_changed(move |_buff| {
+        buff.connect_changed(move |buff| {
+            // Implement markdown-like syntax and adjustments
+            add_styling(buff);
+
+            // Update the fname bar to show changes
             let mut cur_val = insert_label.text().to_string();
             if cur_val.ends_with("*") {
                 return
@@ -58,6 +67,14 @@ pub extern "C" fn build_tab() -> TabBuildFunc {
             cur_val.push_str(" *");
             insert_label.set_text(cur_val.as_str());
         });
+        let tag_table = buff.tag_table();
+        tag_table.add(&TextTag::builder()
+            .name("italic").style(Style::Italic).build());
+        tag_table.add(&TextTag::builder().name("bold").weight(WEIGHT).build());
+        tag_table.add(&TextTag::builder()
+            .name("underline").underline(Underline::Single).build());
+        tag_table.add(&TextTag::builder().name("header").scale(2.0).build());
+        tag_table.add(&TextTag::builder().name("subheader").scale(1.5).build());
 
         unsafe {
             BUFFER = Some(Arc::new(Mutex::new(buff)));
@@ -83,6 +100,25 @@ pub extern "C" fn win_on_key_pressed(
     }
 
     false
+}
+
+#[no_mangle]
+pub extern "C" fn win_on_key_released(
+        _key: &String,
+        _ctrl_pressed: bool, _alt_pressed: bool,
+        _shift_pressed: bool, _super_pressed: bool) {
+    // TODO: Implement key release event
+}
+
+fn add_styling(buff: &TextBuffer) {
+    let sections = parse_style_sections(buff);
+    for sect in sections {
+        if sect.style != None {
+            buff.apply_tag_by_name(
+                sect.style.unwrap().as_str(), &sect.start, &sect.end
+            );
+        }
+    }
 }
 
 fn save_file(clong_file: &mut String, fname: &mut String) -> bool {
@@ -143,12 +179,4 @@ fn save_file(clong_file: &mut String, fname: &mut String) -> bool {
     }
 
     true
-}
-
-#[no_mangle]
-pub extern "C" fn win_on_key_released(
-        _key: &String,
-        _ctrl_pressed: bool, _alt_pressed: bool,
-        _shift_pressed: bool, _super_pressed: bool) {
-    // TODO: Implement key release event
 }
