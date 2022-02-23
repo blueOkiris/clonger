@@ -48,7 +48,7 @@ TODO:
 - [ ] - Create main window
   - [x] - Basic window
   - [ ] - Create file management (new, open, save, save as, and change tracking)
-  - [ ] - Create tab page system
+  - [x] - Create tab page system
 - [ ] - Create plugin system
   - [x] - Setup loading and interface for plugins
   - [ ] - Choose events and define plugin system for pages (Dict, Ex, Doc)
@@ -57,13 +57,13 @@ TODO:
   - [ ] - Create popup
   - [ ] - Add buttons and implement typing
   - [ ] - Add keyboard shortcuts
-- [ ] - Create documentation plugin
-  - [ ] - Create tab page
-  - [ ] - Implement text field and undo/redo
-  - [ ] - Implement preview within text field, i.e. \*\<word\>\* shows up as *\*\<word\>\** and \_\_\<word\>\_\_ shows up as __\_\_\<word\>\_\___
-  - [ ] - Implement integration with saving and opening
+- [x] - Create documentation plugin
+  - [x] - Create tab page
+  - [x] - Implement text field and undo/redo
+  - [x] - Implement preview within text field, i.e. \*\<word\>\* shows up as *\*\<word\>\** and \_\_\<word\>\_\_ shows up as __\_\_\<word\>\_\___
+  - [x] - Implement integration with saving and opening
 - [ ] - Create dictionary plugin
-  - [ ] - create tab page
+  - [x] - create tab page
   - [ ] - Implement basic entry
   - [ ] - Implement additional info
   - [ ] - Implement etymology view
