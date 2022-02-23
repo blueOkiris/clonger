@@ -8,9 +8,8 @@ use gtk4::{
     Notebook, Box, Label,
     Align, Orientation,
     prelude::{
-        ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt,
-    }, gdk::ModifierType,
-    traits::GtkWindowExt,
+        ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt, GtkWindowExt
+    }, gdk::ModifierType
 };
 use std::{
     thread::spawn,
