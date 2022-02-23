@@ -57,10 +57,11 @@ TODO:
   - [ ] - Create popup
   - [ ] - Add buttons and implement typing
   - [ ] - Add keyboard shortcuts
-- [x] - Create documentation plugin
+- [ ] - Create documentation plugin
   - [x] - Create tab page
   - [x] - Implement text field and undo/redo
   - [x] - Implement preview within text field, i.e. \*\<word\>\* shows up as *\*\<word\>\** and \_\_\<word\>\_\_ shows up as __\_\_\<word\>\_\___
+  - [ ] - Implement images
   - [x] - Implement integration with saving and opening
 - [ ] - Create dictionary plugin
   - [x] - create tab page
