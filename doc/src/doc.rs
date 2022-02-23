@@ -18,6 +18,8 @@ type TabBuildFunc = fn(&Label) -> Box;
 const NAME: &'static str = "Documentation";
 const DEF_MARGIN: i32 = 10;
 const WEIGHT: i32 = 700;
+const HEADER_SCALE: f64 = 2.1;
+const SUBHEADER_SCALE: f64 = 1.3;
 
 #[no_mangle]
 pub extern "C" fn name(name_ref: &mut String) {
@@ -73,8 +75,10 @@ pub extern "C" fn build_tab() -> TabBuildFunc {
         tag_table.add(&TextTag::builder().name("bold").weight(WEIGHT).build());
         tag_table.add(&TextTag::builder()
             .name("underline").underline(Underline::Single).build());
-        tag_table.add(&TextTag::builder().name("header").scale(2.0).build());
-        tag_table.add(&TextTag::builder().name("subheader").scale(1.5).build());
+        tag_table.add(&TextTag::builder()
+            .name("header").scale(HEADER_SCALE).build());
+        tag_table.add(&TextTag::builder()
+            .name("subheader").scale(SUBHEADER_SCALE).build());
 
         unsafe {
             BUFFER = Some(Arc::new(Mutex::new(buff)));
@@ -111,6 +115,7 @@ pub extern "C" fn win_on_key_released(
 }
 
 fn add_styling(buff: &TextBuffer) {
+    buff.remove_all_tags(&buff.start_iter(), &buff.end_iter());
     let sections = parse_style_sections(buff);
     for sect in sections {
         if sect.style != None {
