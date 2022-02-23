@@ -6,7 +6,7 @@
 use gtk4::{
     Application, ApplicationWindow, EventControllerKey, Inhibit,
     Notebook, Box, Label,
-    Align, Orientation, NotebookPage,
+    Align, Orientation,
     prelude::{
         ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt,
     }, gdk::ModifierType,
@@ -15,9 +15,10 @@ use gtk4::{
 use std::{
     thread::spawn,
     sync::{ Arc, Mutex, mpsc::{ Sender, Receiver, channel } },
-    env::set_var
+    env::set_var,
+    collections::HashMap
 };
-use crate::plugin::{ Plugin, load_plugins };
+use crate::plugin::{ Plugin, load_plugins, TabBuildFunc };
 use crate::event::{ AsyncEvent, AsyncEventType };
 
 const APP_ID: &'static str = "com.blueokiris.Clonger";
@@ -57,14 +58,31 @@ impl App {
         }
     }
 
-    pub fn start(self) {
+    pub fn start(mut self) {
+        // Create a channel for sending fname updates to title of gui
+        let (fname_tx, fname_rx) = channel(); // Reverse of App tx, rx
+
+        // Create a channel for sending tab page content from plugins on init
+        let (tab_gui_tx, tab_gui_rx) = channel(); // Reverse of App tx, rx
+
+        // Load up tab_gui_rx with plugin info that we can't do later
+        let mut box_map = HashMap::new();
+        for plugin in &self.plugins {
+            if plugin.name().starts_with("w_") {
+                continue;
+            }
+            let tab_content = plugin.build_tab();
+            box_map.insert(plugin.name(), tab_content);
+        }
+        tab_gui_tx.send(box_map).unwrap();
+
         // Set up gui and connect plugins to its events
         let gtk_app = Application::builder().application_id(APP_ID).build();
         let setup_tx = self.tx.clone();
         let setup_fname = self.fname.clone();
         let setup_plugin_names = self.plugin_names.clone();
-        let (fname_tx, fname_rx) = channel(); // Reverse of App tx, rx
         let clonable_fname_rx = Arc::new(Mutex::new(fname_rx)).clone();
+        let clonable_tab_gui_rx = Arc::new(Mutex::new(tab_gui_rx));
         gtk_app.connect_activate(move |app| {
             let win = ApplicationWindow::builder()
                 .application(app)
@@ -74,7 +92,7 @@ impl App {
             win.set_size_request(WIN_MIN_WIDTH, WIN_MIN_HEIGHT);
             
             Self::setup_gui(
-                app, &win, &setup_tx, &clonable_fname_rx,
+                app, &win, &setup_tx, &clonable_fname_rx, &clonable_tab_gui_rx,
                 setup_plugin_names.clone(), setup_fname.clone()
             );
             
@@ -103,6 +121,7 @@ impl App {
             _app: &Application, win: &ApplicationWindow,
             tx: &Sender<AsyncEvent>,
             fname_rx: &Arc<Mutex<Receiver<Option<GuiUpdateData>>>>,
+            tab_gui_rx: &Arc<Mutex<Receiver<HashMap<String, TabBuildFunc>>>>,
             plugin_names: Vec<String>, fname: String) {
         // Main vbox for file name and tabs and such
         let content_box = Box::builder()
@@ -124,15 +143,16 @@ impl App {
         content_box.append(&fname_label);
         // TODO: Track changes & update f name based on if plugin changes (bool)
         
-        let nb = Self::create_notebook(&content_box, tx, plugin_names);
-        // TODO: Create sub windows from plugins and connect their events
+        let nb = Self::create_notebook(
+            &content_box, tx, tab_gui_rx, plugin_names
+        );
 
         Self::attach_key_event_senders(win, &fname_label, tx, fname_rx, &nb);
         // TODO: Add keyboard shortcuts for new, opening, and saving files
     }
 
     fn handle_async_events(
-            &self, event: AsyncEvent, tx: &Sender<Option<GuiUpdateData>>) {
+            &mut self, event: AsyncEvent, tx: &Sender<Option<GuiUpdateData>>) {
         match event.event_type {
             AsyncEventType::KeyPressed => {
                 // TODO: Allow modifying the "file" via plugins
@@ -144,11 +164,14 @@ impl App {
                             && !plugin.name().starts_with("w_") {
                         continue;
                     }
-                    plugin.on_key_pressed(
+                    if plugin.on_key_pressed(
                         &event.key,
                         event.ctrl_pressed, event.alt_pressed,
-                        event.shift_pressed, event.super_pressed
-                    );
+                        event.shift_pressed, event.super_pressed,
+                        &mut self.file, &mut self.fname
+                    ) {
+                        self.changed = true;
+                    }
                 }
 
                 // TODO: Handle saving here
@@ -183,6 +206,7 @@ impl App {
     // For non-window plugins, create a tabbed document from them
     fn create_notebook(
             content_box: &Box, _tx: &Sender<AsyncEvent>,
+            tab_gui_rx: &Arc<Mutex<Receiver<HashMap<String, TabBuildFunc>>>>,
             plugin_names: Vec<String>) -> Notebook {
         let nb = Notebook::builder()
             .margin_top(0).margin_bottom(WIN_DEF_MARGIN)
@@ -192,18 +216,23 @@ impl App {
             .scrollable(true)
             .build();
 
+        // Get the created widgets from the plugins here
+        let rx = tab_gui_rx.lock().unwrap();
+        let tab_children = rx.recv().unwrap();
+
         for name in plugin_names {
             // Check if it's a window plugin
             if name.starts_with("w_") {
                 continue;
             }
 
-            let page = Box::builder()
-                .hexpand(true).vexpand(true).orientation(Orientation::Vertical)
-                .build();
+            let page_func = tab_children.get(&name).unwrap();
+            let page = unsafe { page_func() };
             let label = Label::new(Some(&name));
             nb.append_page(&page, Some(&label));
         }
+
+        // TODO: Create sub windows from plugins and connect their events
 
         content_box.append(&nb);
         nb

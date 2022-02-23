@@ -1,9 +1,10 @@
 [package]
 name = "doc"
-version = "22.217.1"
+version = "22.222.1"
 edition = "2021"
 
 [dependencies]
+gtk4 = "0.4.6"
 
 [lib]
 name = "doc"

@@ -1,5 +1,5 @@
 [package]
-name = "ipa"
+name = "dict"
 version = "22.222.1"
 edition = "2021"
 
@@ -7,6 +7,6 @@ edition = "2021"
 gtk4 = "0.4.6"
 
 [lib]
-name = "ipa"
+name = "dict"
 crate-type = ["cdylib"]
-path = "src/ipa.rs"
+path = "src/dict.rs"

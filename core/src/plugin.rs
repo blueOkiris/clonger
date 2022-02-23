@@ -4,10 +4,16 @@
  */
 
 use std::fs::read_dir;
+use gtk4::{ Box, Orientation };
 use libloading::{ Library, Symbol, Error };
 
 type Name = unsafe fn(&mut String);
-type KeyEventHandler = unsafe fn(&String, bool, bool, bool, bool) -> isize;
+type KeyPressedHandler = unsafe fn(
+    &String, bool, bool, bool, bool, &mut String, &mut String
+) -> bool;
+type KeyReleasedHandler = unsafe fn(&String, bool, bool, bool, bool);
+pub type TabBuildFunc = unsafe fn() -> Box;
+type TabBuildFuncLoader = unsafe fn() -> TabBuildFunc;
 
 // Note that name isn't stored here so a vector of names can be copied
 pub struct Plugin {
@@ -34,26 +40,52 @@ impl Plugin {
             self.lib.get(b"name")
         };
         match name_func {
-            Err(_) => {}, // Just ignore if missing the function
-            Ok(n) => unsafe { n(&mut ret) }
+            Err(err) => { // Just ignore if missing the function
+                println!("Error in plugin's build function: {}", err);
+            }, Ok(n) => unsafe { n(&mut ret) }
         }
         ret
+    }
+
+    pub fn build_tab(&self) -> TabBuildFunc {
+        let handler: Result<Symbol<TabBuildFuncLoader>, Error> = unsafe {
+            self.lib.get(b"build_tab")
+        };
+        match handler {
+            Err(err) => {
+                println!("c!");
+                println!("Error in plugin's build_tab function: {}", err);
+                || {
+                    Box::builder()
+                        .hexpand(true).vexpand(true)
+                        .orientation(Orientation::Vertical)
+                        .build()
+                }
+            }, Ok(build_func_loader) => unsafe {
+                build_func_loader()
+            }
+        }
     }
 
     pub fn on_key_pressed(
             &self,
             key: &String,
             ctrl_pressed: bool, alt_pressed: bool,
-            shift_pressed: bool, super_pressed: bool) {
-        let handler: Result<Symbol<KeyEventHandler>, Error> = unsafe {
+            shift_pressed: bool, super_pressed: bool,
+            file: &mut String, fname: &mut String) -> bool {
+        let handler: Result<Symbol<KeyPressedHandler>, Error> = unsafe {
             self.lib.get(b"on_key_pressed")
         };
         match handler {
-            Err(_) => {}, // Just ignore if missing the function
-            Ok(key_pressed_handler) => unsafe {
+            Err(err) => {
+                println!("Error in plugin's build function: {}", err);
+                false
+            }, Ok(key_pressed_handler) => unsafe {
                 key_pressed_handler(
-                    key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
-                );
+                    key,
+                    ctrl_pressed, alt_pressed, shift_pressed, super_pressed,
+                    file, fname
+                )
             }
         }
     }
@@ -63,12 +95,13 @@ impl Plugin {
             key: &String,
             ctrl_pressed: bool, alt_pressed: bool,
             shift_pressed: bool, super_pressed: bool) {
-        let handler: Result<Symbol<KeyEventHandler>, Error> = unsafe {
+        let handler: Result<Symbol<KeyReleasedHandler>, Error> = unsafe {
             self.lib.get(b"on_key_released")
         };
         match handler {
-            Err(_) => {}, // Just ignore if missing the function
-            Ok(key_released_handler) => unsafe {
+            Err(err) => {
+                println!("Error in plugin's build function: {}", err);
+            }, Ok(key_released_handler) => unsafe {
                 key_released_handler(
                     key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed
                 );
