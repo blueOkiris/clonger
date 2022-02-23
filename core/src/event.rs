@@ -9,8 +9,8 @@
 
 #[derive(Debug)]
 pub enum AsyncEventType {
-    KeyPressed,
-    KeyReleased
+    WinKeyPressed,
+    WinKeyReleased
 }
 
 pub struct AsyncEvent {
@@ -32,7 +32,7 @@ impl AsyncEvent {
             shift_pressed: bool, super_pressed: bool,
             active_tab: String) -> Self {
         Self {
-            event_type: AsyncEventType::KeyPressed,
+            event_type: AsyncEventType::WinKeyPressed,
             key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed,
             active_tab
         }
@@ -44,7 +44,7 @@ impl AsyncEvent {
             shift_pressed: bool, super_pressed: bool,
             active_tab: String) -> Self {
         Self {
-            event_type: AsyncEventType::KeyReleased,
+            event_type: AsyncEventType::WinKeyReleased,
             key, ctrl_pressed, alt_pressed, shift_pressed, super_pressed,
             active_tab
         }

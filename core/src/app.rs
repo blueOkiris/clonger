@@ -27,12 +27,6 @@ const WIN_MIN_HEIGHT: i32 = 800;
 const WIN_TITLE: &'static str = "Clonger";
 const WIN_DEF_MARGIN: i32 = 10;
 
-// Data structure for sending info to the gui for updating ui
-pub struct GuiUpdateData {
-    pub fname: String,
-    pub changed: bool
-}
-
 pub struct App {
     plugins: Vec<Plugin>,
     plugin_names: Vec<String>,
@@ -41,7 +35,17 @@ pub struct App {
     tx: Sender<AsyncEvent>,
     rx: Receiver<AsyncEvent>,
 
-    file: String, fname: String, changed: bool
+    /*
+     * Basic file format is sections of data split by \r (\n is newline)
+     * So like:
+     * [Documentation].......
+     * ......................
+     * ......................\r[Dictionary].......
+     * etc
+     * So we can split by \r, find the section, and extract or update the info
+     */
+    clong_file: String,
+    fname: String
 }
 
 impl App {
@@ -52,8 +56,7 @@ impl App {
         Self {
             plugins, plugin_names,
             tx, rx,
-            file: String::new(), fname: String::from("New File *"),
-            changed: true
+            clong_file: String::new(), fname: String::from("New File *")
         }
     }
 
@@ -87,6 +90,7 @@ impl App {
                 .application(app)
                 .title(WIN_TITLE)
                 .default_width(WIN_MIN_WIDTH).default_height(WIN_MIN_HEIGHT)
+                .can_focus(true)
                 .build();
             win.set_size_request(WIN_MIN_WIDTH, WIN_MIN_HEIGHT);
             
@@ -119,7 +123,7 @@ impl App {
     fn setup_gui(
             _app: &Application, win: &ApplicationWindow,
             tx: &Sender<AsyncEvent>,
-            fname_rx: &Arc<Mutex<Receiver<Option<GuiUpdateData>>>>,
+            fname_rx: &Arc<Mutex<Receiver<Option<String>>>>,
             tab_gui_rx: &Arc<Mutex<Receiver<HashMap<String, TabBuildFunc>>>>,
             plugin_names: Vec<String>, fname: String) {
         // Main vbox for file name and tabs and such
@@ -143,7 +147,7 @@ impl App {
         // TODO: Track changes & update f name based on if plugin changes (bool)
         
         let nb = Self::create_notebook(
-            &content_box, tx, tab_gui_rx, plugin_names
+            &content_box, tx, tab_gui_rx, plugin_names, &fname_label
         );
 
         Self::attach_key_event_senders(win, &fname_label, tx, fname_rx, &nb);
@@ -151,46 +155,42 @@ impl App {
     }
 
     fn handle_async_events(
-            &mut self, event: AsyncEvent, tx: &Sender<Option<GuiUpdateData>>) {
+            &mut self, event: AsyncEvent, tx: &Sender<Option<String>>) {
         match event.event_type {
-            AsyncEventType::KeyPressed => {
+            AsyncEventType::WinKeyPressed => {
                 // TODO: Allow modifying the "file" via plugins
                 let cur_fname = self.fname.clone();
-                let cur_changed = self.changed;
 
                 for plugin in &self.plugins {
                     if plugin.name() != event.active_tab
                             && !plugin.name().starts_with("w_") {
                         continue;
                     }
-                    if plugin.on_key_pressed(
+                    if plugin.win_on_key_pressed(
                         &event.key,
                         event.ctrl_pressed, event.alt_pressed,
                         event.shift_pressed, event.super_pressed,
-                        &mut self.file, &mut self.fname
+                        &mut self.clong_file, &mut self.fname
                     ) {
-                        self.changed = true;
+                        self.fname.push_str(" *");
                     }
                 }
 
                 // TODO: Handle saving here
 
                 // Use reverse channel to 
-                if self.fname != cur_fname || self.changed != cur_changed {
-                    tx.send(Some(GuiUpdateData {
-                        fname: self.fname.clone(),
-                        changed: self.changed
-                    })).unwrap();
+                if self.fname != cur_fname || self.fname.ends_with("*") {
+                    tx.send(Some(self.fname.clone())).unwrap();
                 } else {
                     tx.send(None).unwrap();
                 }
-            }, AsyncEventType::KeyReleased => {
+            }, AsyncEventType::WinKeyReleased => {
                 for plugin in &self.plugins {
                     if plugin.name() != event.active_tab
                             && !plugin.name().starts_with("w_") {
                         continue;
                     }
-                    plugin.on_key_released(
+                    plugin.win_on_key_released(
                         &event.key,
                         event.ctrl_pressed, event.alt_pressed,
                         event.shift_pressed, event.super_pressed
@@ -206,7 +206,8 @@ impl App {
     fn create_notebook(
             content_box: &Box, _tx: &Sender<AsyncEvent>,
             tab_gui_rx: &Arc<Mutex<Receiver<HashMap<String, TabBuildFunc>>>>,
-            plugin_names: Vec<String>) -> Notebook {
+            plugin_names: Vec<String>,
+            fname_label: &Label) -> Notebook {
         let nb = Notebook::builder()
             .margin_top(0).margin_bottom(WIN_DEF_MARGIN)
             .margin_start(WIN_DEF_MARGIN).margin_end(WIN_DEF_MARGIN)
@@ -226,7 +227,7 @@ impl App {
             }
 
             let page_func = tab_children.get(&name).unwrap();
-            let page = unsafe { page_func() };
+            let page = unsafe { page_func(fname_label) };
             let label = Label::new(Some(&name));
             nb.append_page(&page, Some(&label));
         }
@@ -244,7 +245,7 @@ impl App {
     fn attach_key_event_senders(
             win: &ApplicationWindow, fname_label: &Label,
             tx: &Sender<AsyncEvent>,
-            fname_rx: &Arc<Mutex<Receiver<Option<GuiUpdateData>>>>,
+            fname_rx: &Arc<Mutex<Receiver<Option<String>>>>,
             nb: &Notebook) {
         let ev_cont = EventControllerKey::new();
 
@@ -279,10 +280,8 @@ impl App {
             )).unwrap();
 
             match key_pressed_rx.lock().unwrap().recv().unwrap() {
-                Some(data) => {
-                    key_pressed_fname_label.set_label((
-                        data.fname + if data.changed { " *" } else { "" }
-                    ).as_str());
+                Some(fname) => {
+                    key_pressed_fname_label.set_label(&fname);
                 },
                 None => {}
             }

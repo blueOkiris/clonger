@@ -11,17 +11,17 @@ pub extern "C" fn name(name_ref: &mut String) {
 }
 
 #[no_mangle]
-pub extern "C" fn on_key_pressed(
+pub extern "C" fn win_on_key_pressed(
         _key: &String,
         _ctrl_pressed: bool, _alt_pressed: bool,
         _shift_pressed: bool, _super_pressed: bool,
-        _file: &mut String, _fname: &mut String) -> bool {
+        _clong_file: &mut String, _fname: &mut String) -> bool {
     // TODO: Implement key press event
     false
 }
 
 #[no_mangle]
-pub extern "C" fn on_key_released(
+pub extern "C" fn win_on_key_released(
         _key: &String,
         _ctrl_pressed: bool, _alt_pressed: bool,
         _shift_pressed: bool, _super_pressed: bool) {
