@@ -119,7 +119,7 @@ impl App {
         let fname_tx_event = fname_tx.clone();
         spawn(move || {
             while let Ok(event) = self.rx.recv() {
-                //self.handle_async_events(event, &fname_tx_event);
+                self.handle_async_events(event, &fname_tx_event);
             }
         });
 
