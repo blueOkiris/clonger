@@ -4,7 +4,7 @@
  */
 
 use gtk::{
-    Application, ApplicationWindow, EventControllerKey,
+    Application, ApplicationWindow, Inhibit,
     Notebook, Box, Label,
     Align, Orientation,
     prelude::{
@@ -155,11 +155,9 @@ impl App {
         // TODO: Track changes & update f name based on if plugin changes (bool)
         
         let nb = Self::create_notebook(
-            &content_box, tx, tab_gui_rx, plugin_names, &fname_label
+            tx, fname_rx, tab_gui_rx, plugin_names, &fname_label
         );
-
-        Self::attach_key_event_senders(win, &fname_label, tx, fname_rx, &nb);
-        // TODO: Add keyboard shortcuts for new, opening, and saving files
+        content_box.pack_start(&nb, true, true, 0);
     }
 
     fn handle_async_events(
@@ -174,7 +172,7 @@ impl App {
                             && !plugin.name().starts_with("w_") {
                         continue;
                     }
-                    if plugin.win_on_key_pressed(
+                    if plugin.on_key_pressed(
                         &event.key,
                         event.ctrl_pressed, event.alt_pressed,
                         event.shift_pressed, event.super_pressed,
@@ -198,7 +196,7 @@ impl App {
                             && !plugin.name().starts_with("w_") {
                         continue;
                     }
-                    plugin.win_on_key_released(
+                    plugin.on_key_released(
                         &event.key,
                         event.ctrl_pressed, event.alt_pressed,
                         event.shift_pressed, event.super_pressed
@@ -212,7 +210,8 @@ impl App {
     
     // For non-window plugins, create a tabbed document from them
     fn create_notebook(
-            content_box: &Box, _tx: &Sender<AsyncEvent>,
+            tx: &Sender<AsyncEvent>,
+            fname_rx: &Arc<Mutex<Receiver<Option<String>>>>,
             tab_gui_rx: &Arc<Mutex<Receiver<HashMap<String, TabBuildFunc>>>>,
             plugin_names: Vec<String>,
             fname_label: &Label) -> Notebook {
@@ -244,7 +243,9 @@ impl App {
 
         // TODO: Create sub windows from plugins and connect their events
 
-        content_box.pack_start(&nb, true, true, 0);
+        // TODO: Add keyboard shortcuts for new, opening, and saving files
+        Self::attach_key_event_senders(&fname_label, tx, fname_rx, &nb);
+
         nb
     }
 
@@ -253,18 +254,17 @@ impl App {
     * These are needed as to save, open, and new you use keyboard shortcuts!
     */
     fn attach_key_event_senders(
-            win: &ApplicationWindow, fname_label: &Label,
+            fname_label: &Label,
             tx: &Sender<AsyncEvent>,
             fname_rx: &Arc<Mutex<Receiver<Option<String>>>>,
             nb: &Notebook) {
-        let ev_cont = EventControllerKey::new(win);
-
         let key_pressed_tx = tx.clone();
         let key_pressed_rx = fname_rx.clone();
         let key_pressed_fname_label = fname_label.clone();
         let key_pressed_nb = nb.clone();
-        ev_cont.connect_key_pressed(move |_ev_cont, key, _key_code, state| {
-            let key_name = String::from(format!("{}", key));
+        nb.connect_key_press_event(move |_widget, key| {
+            let key_name = key.keyval();
+            let state = key.state();
             let ctrl_pressed =
                 (state.bits() & ModifierType::CONTROL_MASK.bits()) > 0;
             let alt_pressed =
@@ -296,14 +296,15 @@ impl App {
                 None => {}
             }
 
-            false
+            Inhibit(false)
         });
 
         let key_released_tx = tx.clone();
         let key_released_rx = fname_rx.clone();
         let key_released_nb = nb.clone();
-        ev_cont.connect_key_released(move |_ev_cont, key, _key_code, state| {
-            let key_name = String::from(format!("{}", key));
+        nb.connect_key_release_event(move |_widget, key| {
+            let key_name = key.keyval();
+            let state = key.state();
             let ctrl_pressed =
                 (state.bits() & ModifierType::CONTROL_MASK.bits()) > 0;
             let alt_pressed =
@@ -332,6 +333,8 @@ impl App {
                 Some(_) => {},
                 None => {}
             }
+
+            Inhibit(false)
         });
     }
 }

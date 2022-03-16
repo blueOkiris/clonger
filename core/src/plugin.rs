@@ -5,7 +5,8 @@
 
 use std::fs::read_dir;
 use gtk::{
-    Box, Orientation, Label
+    Box, Orientation, Label,
+    gdk::keys::Key
 };
 use libloading::{
     Library, Symbol, Error
@@ -13,9 +14,9 @@ use libloading::{
 
 type Name = unsafe fn(&mut String);
 type KeyPressedHandler = unsafe fn(
-    &String, bool, bool, bool, bool, &mut String, &mut String
+    &Key, bool, bool, bool, bool, &mut String, &mut String
 ) -> bool;
-type KeyReleasedHandler = unsafe fn(&String, bool, bool, bool, bool);
+type KeyReleasedHandler = unsafe fn(&Key, bool, bool, bool, bool);
 pub type TabBuildFunc = unsafe fn(&Label) -> Box;
 type TabBuildFuncLoader = unsafe fn() -> TabBuildFunc;
 
@@ -78,14 +79,14 @@ impl Plugin {
         }
     }
 
-    pub fn win_on_key_pressed(
+    pub fn on_key_pressed(
             &self,
-            key: &String,
+            key: &Key,
             ctrl_pressed: bool, alt_pressed: bool,
             shift_pressed: bool, super_pressed: bool,
             clong_file: &mut String, fname: &mut String) -> bool {
         let handler: Result<Symbol<KeyPressedHandler>, Error> = unsafe {
-            self.lib.get(b"win_on_key_pressed")
+            self.lib.get(b"on_key_pressed")
         };
         match handler {
             Err(err) => {
@@ -101,13 +102,13 @@ impl Plugin {
         }
     }
 
-    pub fn win_on_key_released(
+    pub fn on_key_released(
             &self,
-            key: &String,
+            key: &Key,
             ctrl_pressed: bool, alt_pressed: bool,
             shift_pressed: bool, super_pressed: bool) {
         let handler: Result<Symbol<KeyReleasedHandler>, Error> = unsafe {
-            self.lib.get(b"win_on_key_released")
+            self.lib.get(b"on_key_released")
         };
         match handler {
             Err(err) => {

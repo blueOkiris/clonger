@@ -7,6 +7,8 @@
  *    and unborrow it again
  */
 
+use gtk::gdk::keys::Key;
+
 #[derive(Debug)]
 pub enum AsyncEventType {
     WinKeyPressed,
@@ -17,7 +19,7 @@ pub struct AsyncEvent {
     pub event_type: AsyncEventType,
 
     // Key pressed and key released data
-    pub key: String,
+    pub key: Key,
     pub ctrl_pressed: bool,
     pub alt_pressed: bool,
     pub shift_pressed: bool,
@@ -27,7 +29,7 @@ pub struct AsyncEvent {
 
 impl AsyncEvent {
     pub fn key_pressed(
-            key: String,
+            key: Key,
             ctrl_pressed: bool, alt_pressed: bool,
             shift_pressed: bool, super_pressed: bool,
             active_tab: String) -> Self {
@@ -39,7 +41,7 @@ impl AsyncEvent {
     }
 
     pub fn key_released(
-            key: String,
+            key: Key,
             ctrl_pressed: bool, alt_pressed: bool,
             shift_pressed: bool, super_pressed: bool,
             active_tab: String) -> Self {

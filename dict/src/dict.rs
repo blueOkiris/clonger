@@ -4,7 +4,8 @@
  */
 
 use gtk::{
-    Box, Orientation, Label
+    Box, Orientation, Label,
+    gdk::keys::Key
 };
 
 type TabBuildFunc = fn(&Label) -> Box;
@@ -29,8 +30,8 @@ pub extern "C" fn build_tab() -> TabBuildFunc {
 }
 
 #[no_mangle]
-pub extern "C" fn win_on_key_pressed(
-        _key: &String,
+pub extern "C" fn on_key_pressed(
+        _key: &Key,
         _ctrl_pressed: bool, _alt_pressed: bool,
         _shift_pressed: bool, _super_pressed: bool,
         _clong_file: &mut String, _fname: &mut String) -> bool {
@@ -39,8 +40,8 @@ pub extern "C" fn win_on_key_pressed(
 }
 
 #[no_mangle]
-pub extern "C" fn win_on_key_released(
-        _key: &String,
+pub extern "C" fn on_key_released(
+        _key: &Key,
         _ctrl_pressed: bool, _alt_pressed: bool,
         _shift_pressed: bool, _super_pressed: bool) {
     // TODO: Implement key release event
