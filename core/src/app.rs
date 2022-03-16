@@ -3,22 +3,30 @@
  * Description: Create and launch main window using GTK and set up plugins
  */
 
-use gtk4::{
-    Application, ApplicationWindow, EventControllerKey, Inhibit,
+use gtk::{
+    Application, ApplicationWindow, EventControllerKey,
     Notebook, Box, Label,
     Align, Orientation,
     prelude::{
-        ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt, GtkWindowExt
+        ApplicationExt, WidgetExt, ApplicationExtManual, BoxExt, ContainerExt,
+        LabelExt, NotebookExtManual, NotebookExt
     }, gdk::ModifierType
 };
 use std::{
     thread::spawn,
-    sync::{ Arc, Mutex, mpsc::{ Sender, Receiver, channel } },
-    env::set_var,
+    sync::{
+        Arc, Mutex, mpsc::{
+            Sender, Receiver, channel
+        }
+    }, env::set_var,
     collections::HashMap
 };
-use crate::plugin::{ Plugin, load_plugins, TabBuildFunc };
-use crate::event::{ AsyncEvent, AsyncEventType };
+use crate::plugin::{
+    Plugin, load_plugins, TabBuildFunc
+};
+use crate::event::{
+    AsyncEvent, AsyncEventType
+};
 
 const APP_ID: &'static str = "com.blueokiris.Clonger";
 const GSK_RENDERER: &'static str = "cairo";
@@ -99,7 +107,7 @@ impl App {
                 setup_plugin_names.clone(), setup_fname.clone()
             );
             
-            win.show();
+            win.show_all();
         });
 
         /*
@@ -111,7 +119,7 @@ impl App {
         let fname_tx_event = fname_tx.clone();
         spawn(move || {
             while let Ok(event) = self.rx.recv() {
-                self.handle_async_events(event, &fname_tx_event);
+                //self.handle_async_events(event, &fname_tx_event);
             }
         });
 
@@ -143,7 +151,7 @@ impl App {
             .margin_top(WIN_DEF_MARGIN)
             .margin_bottom(0)
             .build();
-        content_box.append(&fname_label);
+        content_box.pack_start(&fname_label, false, false, 0);
         // TODO: Track changes & update f name based on if plugin changes (bool)
         
         let nb = Self::create_notebook(
@@ -227,14 +235,16 @@ impl App {
             }
 
             let page_func = tab_children.get(&name).unwrap();
-            let page = unsafe { page_func(fname_label) };
+            let page = unsafe {
+                page_func(fname_label)
+            };
             let label = Label::new(Some(&name));
             nb.append_page(&page, Some(&label));
         }
 
         // TODO: Create sub windows from plugins and connect their events
 
-        content_box.append(&nb);
+        content_box.pack_start(&nb, true, true, 0);
         nb
     }
 
@@ -247,18 +257,18 @@ impl App {
             tx: &Sender<AsyncEvent>,
             fname_rx: &Arc<Mutex<Receiver<Option<String>>>>,
             nb: &Notebook) {
-        let ev_cont = EventControllerKey::new();
+        let ev_cont = EventControllerKey::new(win);
 
         let key_pressed_tx = tx.clone();
         let key_pressed_rx = fname_rx.clone();
         let key_pressed_fname_label = fname_label.clone();
         let key_pressed_nb = nb.clone();
         ev_cont.connect_key_pressed(move |_ev_cont, key, _key_code, state| {
-            let key_name = String::from(key.name().unwrap().as_str());
+            let key_name = String::from(format!("{}", key));
             let ctrl_pressed =
                 (state.bits() & ModifierType::CONTROL_MASK.bits()) > 0;
             let alt_pressed =
-                (state.bits() & ModifierType::ALT_MASK.bits()) > 0;
+                (state.bits() & ModifierType::MOD1_MASK.bits()) > 0;
             let shift_pressed =
                 (state.bits() & ModifierType::SHIFT_MASK.bits()) > 0;
             let super_pressed =
@@ -281,23 +291,23 @@ impl App {
 
             match key_pressed_rx.lock().unwrap().recv().unwrap() {
                 Some(fname) => {
-                    key_pressed_fname_label.set_label(&fname);
+                    key_pressed_fname_label.set_text(&fname);
                 },
                 None => {}
             }
 
-            Inhibit(false)
+            false
         });
 
         let key_released_tx = tx.clone();
         let key_released_rx = fname_rx.clone();
         let key_released_nb = nb.clone();
         ev_cont.connect_key_released(move |_ev_cont, key, _key_code, state| {
-            let key_name = String::from(key.name().unwrap().as_str());
+            let key_name = String::from(format!("{}", key));
             let ctrl_pressed =
                 (state.bits() & ModifierType::CONTROL_MASK.bits()) > 0;
             let alt_pressed =
-                (state.bits() & ModifierType::ALT_MASK.bits()) > 0;
+                (state.bits() & ModifierType::MOD1_MASK.bits()) > 0;
             let shift_pressed =
                 (state.bits() & ModifierType::SHIFT_MASK.bits()) > 0;
             let super_pressed =
@@ -323,7 +333,5 @@ impl App {
                 None => {}
             }
         });
-
-        win.add_controller(&ev_cont);
     }
 }

@@ -3,7 +3,9 @@
  * Description: Parse text to understand how to apply styling
  */
 
-use gtk4::{ TextIter, TextBuffer, traits::TextBufferExt };
+use gtk::{
+    TextIter, TextBuffer, traits::TextBufferExt
+};
 
 pub struct TextSection {
     pub start: TextIter,
@@ -17,6 +19,7 @@ pub struct TextSection {
  * _ <text> _ == bold
  * ~ <text> ~ == underline
  * # <text> # == header
+ * ! <url > ! == image (cannot be combined with styles)
  */
 pub fn parse_style_sections(buff: &TextBuffer) -> Vec<TextSection> {
     let mut sections = Vec::new();
@@ -43,21 +46,26 @@ fn parse_text_section(
         return None
     }
 
-    match start.char() {
+    match start.char().expect("Failed to get char from iter!") {
         '*' => {
             let sect_start = buff.iter_at_offset(start.offset());
             *start = buff.iter_at_offset(start.offset() + 1);
             let mut end_others = Vec::new();
             while start.offset() != buff.end_iter().offset()
-                    && start.char() != '*' {
+                    && start.char().expect("Failed to get char from iter!")
+                        != '*' {
                 // Could use match here, but it makes code reuse awful
-                if start.char() == '\\'
+                if start.char().expect("Failed to get char from iter!") == '\\'
                         && start.offset() + 1 != buff.end_iter().offset() {
                     *start = buff.iter_at_offset(start.offset() + 1);
-                } else if start.char() == '_'
-                        || start.char() == '~'
-                        || start.char() == '#'
-                        || start.char() == '$' {
+                } else if start.char().expect("Failed to get char from iter!")
+                            == '_'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '~'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '#'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '$' {
                     // We add a new one, but also ignore to fully get currnt
 
                     let mut sub_start = buff.iter_at_offset(start.offset());
@@ -86,15 +94,21 @@ fn parse_text_section(
             *start = buff.iter_at_offset(start.offset() + 1);
             let mut end_others = Vec::new();
             while start.offset() != buff.end_iter().offset()
-                    && start.char() != '_' {
+                    && start.char().expect("Failed to get char from iter!")
+                        != '_' {
                 // Could use match here, but it makes code reuse awful
-                if start.char() == '\\'
+                if start.char().expect("Failed to get char from iter!")
+                            == '\\'
                         && start.offset() + 1 != buff.end_iter().offset() {
                     *start = buff.iter_at_offset(start.offset() + 1);
-                } else if start.char() == '*'
-                        || start.char() == '~'
-                        || start.char() == '#'
-                        || start.char() == '$' {
+                } else if start.char().expect("Failed to get char from iter!")
+                            == '*'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '~'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '#'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '$' {
                     // We add a new one, but also ignore to fully get currnt
 
                     let mut sub_start = buff.iter_at_offset(start.offset());
@@ -123,15 +137,21 @@ fn parse_text_section(
             *start = buff.iter_at_offset(start.offset() + 1);
             let mut end_others = Vec::new();
             while start.offset() != buff.end_iter().offset()
-                    && start.char() != '~' {
+                    && start.char().expect("Failed to get char from iter!")
+                        != '~' {
                 // Could use match here, but it makes code reuse awful
-                if start.char() == '\\'
+                if start.char().expect("Failed to get char from iter!")
+                            == '\\'
                         && start.offset() + 1 != buff.end_iter().offset() {
                     *start = buff.iter_at_offset(start.offset() + 1);
-                } else if start.char() == '*'
-                        || start.char() == '_'
-                        || start.char() == '#'
-                        || start.char() == '$' {
+                } else if start.char().expect("Failed to get char from iter!")
+                            == '*'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '_'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '#'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '$' {
                     // We add a new one, but also ignore to fully get currnt
 
                     let mut sub_start = buff.iter_at_offset(start.offset());
@@ -160,15 +180,21 @@ fn parse_text_section(
             *start = buff.iter_at_offset(start.offset() + 1);
             let mut end_others = Vec::new();
             while start.offset() != buff.end_iter().offset()
-                    && start.char() != '#' {
+                    && start.char().expect("Failed to get char from iter!")
+                        != '#' {
                 // Could use match here, but it makes code reuse awful
-                if start.char() == '\\'
+                if start.char().expect("Failed to get char from iter!")
+                            == '\\'
                         && start.offset() + 1 != buff.end_iter().offset() {
                     *start = buff.iter_at_offset(start.offset() + 1);
-                } else if start.char() == '*'
-                        || start.char() == '_'
-                        || start.char() == '~'
-                        || start.char() == '$' {
+                } else if start.char().expect("Failed to get char from iter!")
+                            == '*'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '_'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '~'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '$' {
                     // We add a new one, but also ignore to fully get currnt
 
                     let mut sub_start = buff.iter_at_offset(start.offset());
@@ -197,15 +223,21 @@ fn parse_text_section(
             *start = buff.iter_at_offset(start.offset() + 1);
             let mut end_others = Vec::new();
             while start.offset() != buff.end_iter().offset()
-                    && start.char() != '$' {
+                    && start.char().expect("Failed to get char from iter!")
+                        != '$' {
                 // Could use match here, but it makes code reuse awful
-                if start.char() == '\\'
+                if start.char().expect("Failed to get char from iter!")
+                            == '\\'
                         && start.offset() + 1 != buff.end_iter().offset() {
                     *start = buff.iter_at_offset(start.offset() + 1);
-                } else if start.char() == '*'
-                        || start.char() == '_'
-                        || start.char() == '~'
-                        || start.char() == '#' {
+                } else if start.char().expect("Failed to get char from iter!")
+                            == '*'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '_'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '~'
+                        || start.char().expect("Failed to get char from iter!")
+                            == '#' {
                     // We add a new one, but also ignore to fully get currnt
 
                     let mut sub_start = buff.iter_at_offset(start.offset());
@@ -229,16 +261,49 @@ fn parse_text_section(
                 end: sect_end,
                 style: Some(String::from("subheader"))
             })
+        }, '!' => {
+            let sect_start = buff.iter_at_offset(start.offset());
+            *start = buff.iter_at_offset(start.offset() + 1);
+            while start.offset() != buff.end_iter().offset()
+                    && start.char().expect("Failed to get char from iter!")
+                        == '!' {
+                if start.char().expect("Failed to get char from iter!")
+                            == '\\'
+                        && start.offset() + 1 != buff.end_iter().offset() {
+                    *start = buff.iter_at_offset(start.offset() + 1);
+                }
+                
+                *start = buff.iter_at_offset(start.offset() + 1);
+            }
+            *start = buff.iter_at_offset(start.offset() + 1);
+            let sect_end = buff.iter_at_offset(start.offset());
+            let url = buff.text(
+                &buff.iter_at_offset(sect_start.offset() + 1),
+                &buff.iter_at_offset(sect_end.offset() - 1), true
+            ).expect("Failed to get buffer text!").to_string();
+            Some(TextSection {
+                start: sect_start,
+                end: sect_end,
+                style: Some(String::from("image:") + &url)
+            })
         }, _ => {
             let sect_start = buff.iter_at_offset(start.offset());
             *start = buff.iter_at_offset(start.offset() + 1);
             while start.offset() != buff.end_iter().offset()
-                    && start.char() != '*'
-                    && start.char() != '_'
-                    && start.char() != '~'
-                    && start.char() != '#'
-                    && start.char() != '$' {
-                if start.char() == '\\'
+                    && start.char().expect("Failed to get char from iter!")
+                        != '*'
+                    && start.char().expect("Failed to get char from iter!")
+                        != '_'
+                    && start.char().expect("Failed to get char from iter!")
+                        != '~'
+                    && start.char().expect("Failed to get char from iter!")
+                        != '#'
+                    && start.char().expect("Failed to get char from iter!")
+                        != '$'
+                    && start.char().expect("Failed to get char from iter!")
+                        != '!' {
+                if start.char().expect("Failed to get char from iter!")
+                            == '\\'
                         && start.offset() + 1 != buff.end_iter().offset() {
                     *start = buff.iter_at_offset(start.offset() + 1);
                 }

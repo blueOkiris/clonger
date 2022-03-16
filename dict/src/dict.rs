@@ -3,7 +3,9 @@
  * Description: Basic version of the documentation plugin for clonger
  */
 
-use gtk4::{ Box, Orientation, Label };
+use gtk::{
+    Box, Orientation, Label
+};
 
 type TabBuildFunc = fn(&Label) -> Box;
 

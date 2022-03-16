@@ -8,5 +8,5 @@ name = "clonger"
 path = "src/main.rs"
 
 [dependencies]
-gtk4 = "0.4.6"
+gtk = { version = "0.15.4", features = [ "v3_24" ] }
 libloading = "0.7.3"

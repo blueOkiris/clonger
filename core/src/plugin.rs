@@ -4,8 +4,12 @@
  */
 
 use std::fs::read_dir;
-use gtk4::{ Box, Orientation, Label };
-use libloading::{ Library, Symbol, Error };
+use gtk::{
+    Box, Orientation, Label
+};
+use libloading::{
+    Library, Symbol, Error
+};
 
 type Name = unsafe fn(&mut String);
 type KeyPressedHandler = unsafe fn(
@@ -14,6 +18,13 @@ type KeyPressedHandler = unsafe fn(
 type KeyReleasedHandler = unsafe fn(&String, bool, bool, bool, bool);
 pub type TabBuildFunc = unsafe fn(&Label) -> Box;
 type TabBuildFuncLoader = unsafe fn() -> TabBuildFunc;
+
+#[cfg(debug_assertions)]
+const PLUGIN_DIR: &'static str = "target/debug";
+
+// When building the final app, we'll create a "plugins" folder in install dir
+#[cfg(not(debug_assertions))]
+const PLUGIN_DIR: &'static str = "~/.clonger/plugins";
 
 // Note that name isn't stored here so a vector of names can be copied
 pub struct Plugin {
@@ -119,7 +130,7 @@ impl Plugin {
 pub fn load_plugins() -> (Vec<Plugin>, Vec<String>) {
     let mut libs = Vec::new();
     let mut lib_names = Vec::new();
-    let paths = read_dir("target/release/").unwrap();
+    let paths = read_dir(PLUGIN_DIR).unwrap();
     for path in paths {
         let fname = path.unwrap().path().display().to_string();
         if fname.ends_with(".so") {

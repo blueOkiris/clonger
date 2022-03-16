@@ -5,10 +5,14 @@
 
 mod parse;
 
-use gtk4::{
-    Box, Orientation, ScrolledWindow, TextView, TextBuffer, Label, TextTag,
-    prelude::{ BoxExt, TextViewExt, TextBufferExt },
-    pango::{ Style, Underline }
+use gtk::{
+    Box, Orientation, ScrolledWindow, TextView, TextBuffer, Label,
+    TextTag,
+    prelude::{
+        TextViewExt, TextBufferExt, LabelExt, TextTagTableExt, ContainerExt
+    }, pango::{
+        Style, Underline
+    }
 };
 use std::sync::{ Arc, Mutex };
 use crate::parse::parse_style_sections;
@@ -34,8 +38,9 @@ pub extern "C" fn name(name_ref: &mut String) {
  * 
  * May improve later
  */
-static mut BUFFER: Option<Arc<Mutex<TextBuffer>>> = None;
+static mut TEXT_VIEW: Option<Arc<Mutex<TextView>>> = None;
 static mut FNAME_LABEL: Option<Arc<Mutex<Label>>> = None;
+static mut LAST_BUFF: Option<Arc<Mutex<String>>> = None;
 
 // This returns a function to be called later, due to Gtk's creation restriction
 #[no_mangle]
@@ -55,9 +60,24 @@ pub extern "C" fn build_tab() -> TabBuildFunc {
             .accepts_tab(true)
             .build();
 
-        let buff = text.buffer();
+        let buff = text.buffer().expect("Couldn't get text buffer!");
         let insert_label = label.clone();
+        let insert_text = text.clone();
         buff.connect_changed(move |buff| {
+            let last_text_mutx = unsafe {
+                LAST_BUFF.to_owned().unwrap()
+            };
+            let last_text = last_text_mutx.lock().unwrap().to_owned();
+            let cur_text = buff.text(
+                &buff.start_iter(), &buff.end_iter(), false
+            ).expect("Failed to grab buffer text!").to_string();
+            if last_text == cur_text {
+                // Don't re-call changed if simply modifying background stuff
+                return
+            }
+
+            buff.create_child_anchor(&mut buff.start_iter());
+
             // Implement markdown-like syntax and adjustments
             add_styling(buff);
 
@@ -69,7 +89,9 @@ pub extern "C" fn build_tab() -> TabBuildFunc {
             cur_val.push_str(" *");
             insert_label.set_text(cur_val.as_str());
         });
-        let tag_table = buff.tag_table();
+        let tag_table = buff.tag_table().expect(
+            "Failed to get buff tag_table!"
+        );
         tag_table.add(&TextTag::builder()
             .name("italic").style(Style::Italic).build());
         tag_table.add(&TextTag::builder().name("bold").weight(WEIGHT).build());
@@ -81,12 +103,13 @@ pub extern "C" fn build_tab() -> TabBuildFunc {
             .name("subheader").scale(SUBHEADER_SCALE).build());
 
         unsafe {
-            BUFFER = Some(Arc::new(Mutex::new(buff)));
+            TEXT_VIEW = Some(Arc::new(Mutex::new(text.clone())));
             FNAME_LABEL = Some(Arc::new(Mutex::new(label.clone())));
+            LAST_BUFF = Some(Arc::new(Mutex::new(String::new())));
         }
 
         scrollview.set_child(Some(&text));
-        content.append(&scrollview);
+        content.add(&scrollview);
         content
     }
 }
@@ -119,9 +142,18 @@ fn add_styling(buff: &TextBuffer) {
     let sections = parse_style_sections(buff);
     for sect in sections {
         if sect.style != None {
-            buff.apply_tag_by_name(
-                sect.style.unwrap().as_str(), &sect.start, &sect.end
-            );
+            let style = sect.style.clone().unwrap();
+            let mut start = sect.start.clone();
+            if style.starts_with("image:") {
+                let url = style.split_at(6).1;
+                println!("Loading image from '{}'", url);
+
+                // TODO: Figure out how to draw image in/near text view
+                let start = sect.start;
+                
+            } else {
+                buff.apply_tag_by_name(style.as_str(), &sect.start, &sect.end);
+            }
         }
     }
 }
@@ -131,8 +163,8 @@ fn save_file(clong_file: &mut String, fname: &mut String) -> bool {
 
     // Make sure fname matches text view (bc it might not have updated)
     unsafe {
-        let label_mut = FNAME_LABEL.to_owned().unwrap();
-        let label = label_mut.lock().unwrap();
+        let label_mutx = FNAME_LABEL.to_owned().unwrap();
+        let label = label_mutx.lock().unwrap();
         *fname = label.text().to_string();
     }
 
@@ -148,12 +180,14 @@ fn save_file(clong_file: &mut String, fname: &mut String) -> bool {
 
     // Update doc
     let old_doc_sect = doc_sect.clone();
-    let tb_mut = unsafe { BUFFER.to_owned().unwrap() };
-    let tb = tb_mut.lock().unwrap().to_owned();
+    let text_mutx = unsafe { TEXT_VIEW.to_owned().unwrap() };
+    let text = text_mutx.lock().unwrap().to_owned();
+    let tb = text.buffer().expect("Failed to grab text buffer!");
     let tb_start = tb.start_iter();
     let tb_end = tb.end_iter();
     let text = tb_start.text(&tb_end);
-    doc_sect = String::from("[DOC]") + &text.to_string();
+    doc_sect = String::from("[DOC]")
+        + &text.expect("Failed to grab buffer text!").to_string();
 
     if doc_sect == old_doc_sect {
         return false
@@ -178,8 +212,8 @@ fn save_file(clong_file: &mut String, fname: &mut String) -> bool {
 
     // Update the actual frame buffer
     unsafe {
-        let label_mut = FNAME_LABEL.to_owned().unwrap();
-        let label = label_mut.lock().unwrap();
+        let label_mutx = FNAME_LABEL.to_owned().unwrap();
+        let label = label_mutx.lock().unwrap();
         label.set_text(fname.as_str());
     }
 
