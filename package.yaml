@@ -13,6 +13,9 @@ description:         A TUI tool for making naturalistic conlangs all in one plac
 
 dependencies:
 - base >= 4.7 && < 5
+- brick == 1.4
+- text == 1.2.5.0
+- vty == 5.37
 
 library:
   source-dirs: src

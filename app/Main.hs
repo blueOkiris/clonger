@@ -1,6 +1,8 @@
 module Main (main) where
 
+import Tui
+
 main :: IO ()
 main = do
-    putStrLn "Hello, world!"
+    startApp
 
