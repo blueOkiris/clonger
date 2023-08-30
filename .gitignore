@@ -1,3 +1,5 @@
-/target
+# Haskell
+.stack-work/
 *.lock
-*.log
+*.cabal
+
